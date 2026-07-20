@@ -87,8 +87,8 @@ export default function ScholarshipsPage() {
             console.log(`${apiUrl}/scholarships?${queryParams}`);
     
             // 1. Fetch the token (assuming you imported authClient)
-            const tokenResponse = await authClient.token();
-            const token = tokenResponse?.data?.token;
+            // const tokenResponse = await authClient.token();
+            // const token = tokenResponse?.data?.token;
     
             // 2. Attach the token to the fetch request
             const response = await fetch(
@@ -96,7 +96,7 @@ export default function ScholarshipsPage() {
                 {
                     headers: {
                         "Content-Type": "application/json",
-                        "Authorization": `Bearer ${token}` // Ensure this is sent!
+                        // "Authorization": `Bearer ${token}` // Ensure this is sent!
                     }
                 }
             );
@@ -130,7 +130,7 @@ export default function ScholarshipsPage() {
 
     return (
         <div className="min-h-screen bg-slate-50 py-12 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-7xl mx-auto">
+            <div className="container mx-auto">
                 
                 {/* Header */}
                 <div className="mb-8">

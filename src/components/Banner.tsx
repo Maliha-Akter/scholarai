@@ -1,20 +1,56 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { GraduationCap, Globe, Search, Sparkles, ArrowRight, ChevronDown } from "lucide-react";
 
+const TYPING_WORDS = [
+    "Scholarship",
+    "University Match",
+    "Global Funding",
+    "Master's Degree"
+];
+
 export default function Banner() {
+    // Typing Animation State
+    const [wordIndex, setWordIndex] = useState(0);
+    const [text, setText] = useState("");
+    const [isDeleting, setIsDeleting] = useState(false);
+
+    useEffect(() => {
+        const currentWord = TYPING_WORDS[wordIndex];
+        
+        const timer = setTimeout(() => {
+            if (!isDeleting) {
+                // Typing forward
+                setText(currentWord.substring(0, text.length + 1));
+                if (text.length + 1 === currentWord.length) {
+                    // Pause at the end of the word before deleting
+                    setTimeout(() => setIsDeleting(true), 1500);
+                }
+            } else {
+                // Deleting backward
+                setText(currentWord.substring(0, text.length - 1));
+                if (text.length - 1 === 0) {
+                    setIsDeleting(false);
+                    setWordIndex((prev) => (prev + 1) % TYPING_WORDS.length);
+                }
+            }
+        }, isDeleting ? 40 : 90); // Type faster when deleting
+
+        return () => clearTimeout(timer);
+    }, [text, isDeleting, wordIndex]);
+
     return (
-        <section className="relative w-full h-[70vh] min-h-[550px] max-h-[800px] flex items-center justify-center overflow-hidden bg-gradient-to-b from-[#F8FAFC] to-white border-b border-blue-50/50">
+        <section className="relative container mx-auto min-h-[650px] lg:h-[75vh] lg:max-h-[850px] flex items-center justify-center overflow-hidden bg-gradient-to-b from-[#F8FAFC] to-white border-b border-blue-50/50 py-16 lg:py-0 mb-0 lg:mb-10">
             
             {/* Background decorative blurs */}
             <div className="absolute top-0 left-1/4 w-96 h-96 bg-[#1D4ED8]/5 rounded-full blur-3xl -z-10"></div>
             <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-[#7C3AED]/5 rounded-full blur-3xl -z-10"></div>
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center h-full py-12 lg:py-0">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center h-full">
                     
                     {/* Left Column: Text & CTAs */}
                     <motion.div 
@@ -31,11 +67,21 @@ export default function Banner() {
                             <span>AI-Powered Matching Engine</span>
                         </motion.div>
                         
-                        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-[#0F172A] leading-[1.1] mb-6 tracking-tight">
+                        {/* FIX 2: Increased min-h to safely hold 3 lines of wrapped text without pushing buttons down */}
+                        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-[#0F172A] leading-[1.15] mb-6 tracking-tight min-h-[130px] sm:min-h-[160px] lg:min-h-[200px]">
                             Find Your Dream <br className="hidden lg:block" />
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#1D4ED8] to-[#7C3AED]">
-                                Scholarship
-                            </span> with AI
+                                {text}
+                            </span>
+                            {/* Blinking Cursor */}
+                            <motion.span 
+                                animate={{ opacity: [1, 0, 1] }} 
+                                transition={{ duration: 0.8, repeat: Infinity }}
+                                className="inline-block text-[#7C3AED] font-light ml-1"
+                            >
+                                |
+                            </motion.span> 
+                            <span className="block sm:inline"> with AI</span>
                         </h1>
                         
                         <p className="text-lg text-slate-600 max-w-xl mb-8 leading-relaxed">
@@ -44,7 +90,7 @@ export default function Banner() {
                         
                         <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
                             <Link 
-                                href="/scholarships"
+                                href="/scholarships/view"
                                 className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-3.5 rounded-full text-white font-bold bg-gradient-to-r from-[#1D4ED8] to-[#7C3AED] shadow-lg shadow-blue-900/20 hover:shadow-xl hover:shadow-blue-900/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all"
                             >
                                 <Search className="w-5 h-5" />
@@ -122,7 +168,7 @@ export default function Banner() {
                 </div>
             </div>
 
-            {/* Visual Flow Indicator -> Guides the user's eye to the next section */}
+            {/* Visual Flow Indicator */}
             <motion.div 
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1, y: [0, 8, 0] }}
@@ -130,9 +176,8 @@ export default function Banner() {
                     opacity: { duration: 1, delay: 1.5 },
                     y: { duration: 2, repeat: Infinity, ease: "easeInOut" }
                 }}
-                className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 text-slate-400 pointer-events-none"
+                className="absolute bottom-4 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 text-slate-400 pointer-events-none hidden sm:flex"
             >
-                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Scroll</span>
                 <ChevronDown className="w-5 h-5 text-slate-400" />
             </motion.div>
         </section>
