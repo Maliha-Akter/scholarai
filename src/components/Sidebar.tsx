@@ -11,7 +11,6 @@ import {
     Sparkles,
     FilePlus,
     Files,
-    Settings,
     LogOut, 
     Loader2, 
     X,
@@ -80,7 +79,6 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
             href: '/dashboard/scholarships/manage', 
             icon: <Files className="w-5 h-5" /> 
         },
-        
     ];
 
     const handleLogout = async () => {
@@ -112,61 +110,59 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
 
             {/* Sidebar Container */}
             <aside 
-                className={`fixed inset-y-0 left-0 z-50 w-64 bg-white text-slate-700 flex flex-col justify-between border-r border-blue-100 transition-transform duration-300 ease-in-out md:translate-x-0 md:static md:h-screen md:sticky md:top-0 ${
+                className={`fixed inset-y-0 left-0 z-50 w-64 bg-white text-slate-700 flex flex-col border-r border-blue-100 transition-transform duration-300 ease-in-out md:translate-x-0 md:sticky md:top-0 md:h-screen ${
                     isOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'
                 }`}
             >
-                {/* Top Brand Section */}
-                <div>
-                    <div className="h-16 flex items-center justify-between px-6 border-b border-blue-100 bg-[#F8FAFC]">
-                        <Link 
-                            href="/" 
-                            className="text-xl font-bold flex items-center gap-2 group"
-                            onClick={() => onClose()} 
-                        >
-                            <div className="bg-[#1D4ED8] text-[#FBBF24] p-1.5 rounded-lg shadow-sm transition-transform group-hover:scale-105">
-                                <GraduationCap className="w-5 h-5" />
-                            </div>
-                            <span className="text-[#0F172A] tracking-tight">
-                                Scholar<span className="text-[#7C3AED]">AI</span>
-                            </span>
-                        </Link>
+                {/* Top Brand Section - fixed height at top */}
+                <div className="h-16 shrink-0 flex items-center justify-between px-6 border-b border-blue-100 bg-[#F8FAFC]">
+                    <Link 
+                        href="/" 
+                        className="text-xl font-bold flex items-center gap-2 group"
+                        onClick={() => onClose()} 
+                    >
+                        <div className="bg-[#1D4ED8] text-[#FBBF24] p-1.5 rounded-lg shadow-sm transition-transform group-hover:scale-105">
+                            <GraduationCap className="w-5 h-5" />
+                        </div>
+                        <span className="text-[#0F172A] tracking-tight">
+                            Scholar<span className="text-[#7C3AED]">AI</span>
+                        </span>
+                    </Link>
 
-                        {/* Mobile Close Button */}
-                        <button 
-                            onClick={onClose} 
-                            className="md:hidden text-slate-400 hover:text-[#1D4ED8] p-1 rounded-lg hover:bg-blue-50 transition-colors"
-                            aria-label="Close sidebar"
-                        >
-                            <X className="w-5 h-5" />
-                        </button>
-                    </div>
-
-                    {/* Navigation Links */}
-                    <nav className="p-4 space-y-1.5 overflow-y-auto max-h-[calc(100vh-140px)] custom-scrollbar">
-                        {sidebarLinks.map((link) => {
-                            const isActive = pathname === link.href;
-                            return (
-                                <Link
-                                    key={link.label}
-                                    href={link.href}
-                                    onClick={() => onClose()}
-                                    className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-                                        isActive
-                                            ? "bg-blue-50 text-[#1D4ED8] font-semibold border-l-4 border-[#1D4ED8]"
-                                            : "text-slate-600 hover:text-[#1D4ED8] hover:bg-slate-50 border-l-4 border-transparent"
-                                    }`}
-                                >
-                                    {link.icon}
-                                    {link.label}
-                                </Link>
-                            );
-                        })}
-                    </nav>
+                    {/* Mobile Close Button */}
+                    <button 
+                        onClick={onClose} 
+                        className="md:hidden text-slate-400 hover:text-[#1D4ED8] p-1 rounded-lg hover:bg-blue-50 transition-colors"
+                        aria-label="Close sidebar"
+                    >
+                        <X className="w-5 h-5" />
+                    </button>
                 </div>
 
-                {/* Bottom Profile / Logout Action Footer */}
-                <div className="p-4 border-t border-blue-100 bg-[#F8FAFC] shrink-0">
+                {/* Navigation Links - flex-1 takes up exactly the remaining middle space */}
+                <nav className="flex-1 overflow-y-auto p-4 space-y-1.5 custom-scrollbar">
+                    {sidebarLinks.map((link) => {
+                        const isActive = pathname === link.href;
+                        return (
+                            <Link
+                                key={link.label}
+                                href={link.href}
+                                onClick={() => onClose()}
+                                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
+                                    isActive
+                                        ? "bg-blue-50 text-[#1D4ED8] font-semibold border-l-4 border-[#1D4ED8]"
+                                        : "text-slate-600 hover:text-[#1D4ED8] hover:bg-slate-50 border-l-4 border-transparent"
+                                }`}
+                            >
+                                {link.icon}
+                                {link.label}
+                            </Link>
+                        );
+                    })}
+                </nav>
+
+                {/* Bottom Profile / Logout Action Footer - shrink-0 pins it to the bottom */}
+                <div className="shrink-0 p-4 border-t border-blue-100 bg-[#F8FAFC]">
                     {user && (
                         <div className="flex items-center gap-3 mb-4 px-2">
                             <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#1D4ED8] to-[#7C3AED] overflow-hidden border-2 border-white shadow-sm shrink-0 flex items-center justify-center text-white">
@@ -188,7 +184,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                     <button
                         onClick={handleLogout}
                         disabled={isLoggingOut}
-                        className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors cursor-pointer disabled:opacity-50"
+                        className="w-full flex items-center justify-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors cursor-pointer disabled:opacity-50"
                     >
                         {isLoggingOut ? (
                             <Loader2 className="w-5 h-5 animate-spin mx-auto" />
