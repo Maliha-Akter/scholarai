@@ -22,7 +22,7 @@ function LoginForm() {
 
     const toggleVisibility = () => setIsVisible(!isVisible);
 
-    // 1. Standard Email/Password Login Mutation
+   // 1. Standard Email/Password Login Mutation
     const loginMutation = useMutation({
         mutationFn: async ({ email, password }: { email: string; password: string }) => {
             const { error } = await authClient.signIn.email({
@@ -37,7 +37,8 @@ function LoginForm() {
 
             return await authClient.getSession();
         },
-        onSuccess: (sessionResult) => {
+        // Fix: Explicitly type sessionResult using the return type of getSession()
+        onSuccess: (sessionResult: Awaited<ReturnType<typeof authClient.getSession>>) => {
             toast.success("Welcome back!");
             const userRole = (sessionResult?.data?.user as User)?.role;
 
