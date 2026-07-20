@@ -41,6 +41,11 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
             icon: <LayoutDashboard className="w-5 h-5" />
         },
         { 
+            label: 'Browse Scholarships', 
+            href: '/dashboard/scholarships/view', 
+            icon: <UserIcon className="w-5 h-5" /> 
+        },
+        { 
             label: 'Profile', 
             href: '/dashboard/profile', 
             icon: <UserIcon className="w-5 h-5" /> 

@@ -59,7 +59,7 @@ export default function UniversitiesPage() {
         setError(null);
 
         try {
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL ;
 
             const queryParams = new URLSearchParams({
                 page: filters.page.toString(),

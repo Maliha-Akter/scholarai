@@ -1,15 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { Card, Button, Link, TextField, Label, InputGroup, Input } from "@heroui/react";
-import { Eye, EyeOff, AtSign, Lock, User, Image as ImageIcon } from "lucide-react";
+import { Eye, EyeOff, AtSign, Lock, User, Image as ImageIcon, RefreshCw } from "lucide-react";
 import { authClient } from "@/app/lib/auth-client";
 import { toast } from "react-toastify";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FcGoogle } from "react-icons/fc";
 import AuthAnimation from "@/components/AuthAnimation";
 
-export default function RegisterComponent() {
+// 1. Separate the main logic into a sub-component
+function RegisterForm() {
     const router = useRouter();
     const searchParams = useSearchParams();
 
@@ -45,7 +46,6 @@ export default function RegisterComponent() {
         return Object.keys(newErrors).length === 0;
     };
 
-
     const handleSignup = async (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -61,7 +61,6 @@ export default function RegisterComponent() {
         };
 
         try {
-            // ✅ FIXED: Using unified authClient instance methods directly
             const { error: authError } = await authClient.signUp.email(registrationPayload);
 
             if (authError) {
@@ -103,7 +102,7 @@ export default function RegisterComponent() {
 
             if (data.success) {
                 setImage(data.data.url);
-                setFileName(""); // 👈 FIX: Clear the filename so the URL takes over!
+                setFileName(""); 
                 toast.success("File uploaded successfully!");
             } else {
                 toast.error("Upload failed");
@@ -129,114 +128,154 @@ export default function RegisterComponent() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center p-4 bg-[#F8FAFC]">
-            <div className="w-full max-w-5xl flex rounded-[32px] overflow-hidden shadow-2xl bg-white border border-slate-200 min-h-[600px]">
-
-                {/* Left Side: Form */}
-                <div className="w-full lg:w-1/2 p-8 lg:p-12 bg-white">
-                    <div className="pb-8">
-                        <h1 className="text-3xl font-black text-[#0F172A] tracking-tight">Create Account</h1>
-                        <p className="text-sm text-slate-500 mt-2">Start your academic success today.</p>
-                    </div>
-
-                    <form onSubmit={handleSignup} className="flex flex-col gap-4">
-                        {/* Name Field */}
-                        <TextField isRequired name="name" className="flex flex-col gap-1.5">
-                            <Label className="text-xs font-medium text-zinc-600">Name</Label>
-                            <InputGroup className={`flex items-center gap-2 border rounded-xl px-3 bg-zinc-50 focus-within:border-amber-500 transition-colors ${errors.name ? "border-red-500" : "border-zinc-200"}`}>
-                                <User className="text-zinc-400" size={16} />
-                                <Input
-                                    value={name}
-                                    onChange={(e) => setName(e.target.value)}
-                                    className="w-full bg-transparent py-2 text-sm text-zinc-900 outline-none placeholder:text-zinc-400"
-                                />
-                            </InputGroup>
-                            {errors.name && <p className="text-[10px] text-red-500 mt-0.5">{errors.name}</p>}
-                        </TextField>
-
-                        {/* Email Field */}
-                        <TextField isRequired name="email" className="flex flex-col gap-1.5">
-                            <Label className="text-xs font-medium text-zinc-600">Email Address</Label>
-                            <InputGroup className={`flex items-center gap-2 border rounded-xl px-3 bg-zinc-50 focus-within:border-amber-500 transition-colors ${errors.email ? "border-red-500" : "border-zinc-200"}`}>
-                                <AtSign className="text-zinc-400" size={16} />
-                                <Input
-                                    type="email"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    className="w-full bg-transparent py-2 text-sm text-zinc-900 outline-none placeholder:text-zinc-400"
-                                />
-                            </InputGroup>
-                            {errors.email && <p className="text-[10px] text-red-500 mt-0.5">{errors.email}</p>}
-                        </TextField>
-
-                        {/* Avatar Input (Already has a light background, adjusted text for consistency) */}
-                        <div className="flex flex-col gap-1.5">
-                            <div className="flex justify-between items-center">
-                                <Label className="text-xs font-medium text-zinc-600">Avatar</Label>
-                                <span className="text-[9px] text-zinc-400">Paste URL or upload a file</span>
-                            </div>
-                            <InputGroup className="flex items-center gap-2 border border-zinc-200 rounded-xl px-3 bg-zinc-50 focus-within:border-[#7C3AED] transition-colors">
-                                <ImageIcon className="text-zinc-400" size={16} />
-                                <Input
-                                    placeholder="https://example.com/avatar.png"
-                                    type="url"
-                                    value={image}
-                                    onChange={(e) => setImage(e.target.value)}
-                                    className="w-full bg-transparent py-2 text-sm text-zinc-900 outline-none placeholder:text-zinc-400"
-                                />
-                                <input
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={handleFileUpload}
-                                    className="hidden"
-                                    id="file-upload"
-                                    disabled={isLoading}
-                                />
-                                <label
-                                    htmlFor="file-upload"
-                                    className="cursor-pointer text-[#7C3AED] text-xs font-bold whitespace-nowrap hover:text-[#5B21B6] transition-colors"
-                                >
-                                    {isLoading ? "Uploading..." : "Upload File"}
-                                </label>
-                            </InputGroup>
-                        </div>
-
-                        {/* Password Field */}
-                        <TextField isRequired name="password" className="flex flex-col gap-1.5">
-                            <div className="flex justify-between items-center">
-                                <Label className="text-xs font-medium text-zinc-600">Password</Label>
-                                <Link href="/auth/ForgotPassword" className="text-[11px] text-amber-600 hover:underline">
-                                    Forgot password?
-                                </Link>
-                            </div>
-                            <InputGroup className={`flex items-center gap-2 border rounded-xl px-3 bg-zinc-50 focus-within:border-amber-500 transition-colors ${errors.password ? "border-red-500" : "border-zinc-200"}`}>
-                                <Lock className="text-zinc-400" size={16} />
-                                <Input
-                                    type={isVisible ? "text" : "password"}
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    className="w-full bg-transparent py-2 text-sm text-zinc-900 outline-none placeholder:text-zinc-400"
-                                />
-                                <button type="button" onClick={toggleVisibility} className="text-zinc-400 focus:outline-none">
-                                    {isVisible ? <EyeOff size={16} /> : <Eye size={16} />}
-                                </button>
-                            </InputGroup>
-                            {errors.password && <p className="text-[10px] text-red-500 mt-0.5">{errors.password}</p>}
-                        </TextField>
-
-                        <Button
-                            type="submit"
-                            className="w-full h-11 mt-2 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-amber-500 to-orange-600 shadow-md shadow-orange-950/10 hover:opacity-95 active:scale-[0.99] transition-all"
-                            isDisabled={isLoading}
-                        >
-                            {isLoading ? "Registering..." : "Register"}
-                        </Button>
-                    </form>
+        <div className="w-full max-w-5xl flex rounded-[32px] overflow-hidden shadow-2xl bg-white border border-slate-200 min-h-[600px]">
+            {/* Left Side: Form */}
+            <div className="w-full lg:w-1/2 p-8 lg:p-12 bg-white flex flex-col justify-center">
+                <div className="pb-8">
+                    <h1 className="text-3xl font-black text-[#0F172A] tracking-tight">Create Account</h1>
+                    <p className="text-sm text-slate-500 mt-2">Start your academic success today.</p>
                 </div>
 
-                {/* Right Side: Animation */}
-                <AuthAnimation />
+                <form onSubmit={handleSignup} className="flex flex-col gap-4">
+                    {/* Name Field */}
+                    <TextField isRequired name="name" className="flex flex-col gap-1.5">
+                        <Label className="text-xs font-medium text-zinc-600">Name</Label>
+                        <InputGroup className={`flex items-center gap-2 border rounded-xl px-3 bg-zinc-50 focus-within:border-amber-500 transition-colors ${errors.name ? "border-red-500" : "border-zinc-200"}`}>
+                            <User className="text-zinc-400" size={16} />
+                            <Input
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                                className="w-full bg-transparent py-2 text-sm text-zinc-900 outline-none placeholder:text-zinc-400"
+                            />
+                        </InputGroup>
+                        {errors.name && <p className="text-[10px] text-red-500 mt-0.5">{errors.name}</p>}
+                    </TextField>
+
+                    {/* Email Field */}
+                    <TextField isRequired name="email" className="flex flex-col gap-1.5">
+                        <Label className="text-xs font-medium text-zinc-600">Email Address</Label>
+                        <InputGroup className={`flex items-center gap-2 border rounded-xl px-3 bg-zinc-50 focus-within:border-amber-500 transition-colors ${errors.email ? "border-red-500" : "border-zinc-200"}`}>
+                            <AtSign className="text-zinc-400" size={16} />
+                            <Input
+                                type="email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                className="w-full bg-transparent py-2 text-sm text-zinc-900 outline-none placeholder:text-zinc-400"
+                            />
+                        </InputGroup>
+                        {errors.email && <p className="text-[10px] text-red-500 mt-0.5">{errors.email}</p>}
+                    </TextField>
+
+                    {/* Avatar Input */}
+                    <div className="flex flex-col gap-1.5">
+                        <div className="flex justify-between items-center">
+                            <Label className="text-xs font-medium text-zinc-600">Avatar</Label>
+                            <span className="text-[9px] text-zinc-400">Paste URL or upload a file</span>
+                        </div>
+                        <InputGroup className="flex items-center gap-2 border border-zinc-200 rounded-xl px-3 bg-zinc-50 focus-within:border-[#7C3AED] transition-colors">
+                            <ImageIcon className="text-zinc-400" size={16} />
+                            <Input
+                                placeholder="https://example.com/avatar.png"
+                                type="url"
+                                value={image}
+                                onChange={(e) => setImage(e.target.value)}
+                                className="w-full bg-transparent py-2 text-sm text-zinc-900 outline-none placeholder:text-zinc-400"
+                            />
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={handleFileUpload}
+                                className="hidden"
+                                id="file-upload"
+                                disabled={isLoading}
+                            />
+                            <label
+                                htmlFor="file-upload"
+                                className="cursor-pointer text-[#7C3AED] text-xs font-bold whitespace-nowrap hover:text-[#5B21B6] transition-colors"
+                            >
+                                {isLoading ? "Uploading..." : "Upload File"}
+                            </label>
+                        </InputGroup>
+                    </div>
+
+                    {/* Password Field */}
+                    <TextField isRequired name="password" className="flex flex-col gap-1.5">
+                        <div className="flex justify-between items-center">
+                            <Label className="text-xs font-medium text-zinc-600">Password</Label>
+                        </div>
+                        <InputGroup className={`flex items-center gap-2 border rounded-xl px-3 bg-zinc-50 focus-within:border-amber-500 transition-colors ${errors.password ? "border-red-500" : "border-zinc-200"}`}>
+                            <Lock className="text-zinc-400" size={16} />
+                            <Input
+                                type={isVisible ? "text" : "password"}
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                className="w-full bg-transparent py-2 text-sm text-zinc-900 outline-none placeholder:text-zinc-400"
+                            />
+                            <button type="button" onClick={toggleVisibility} className="text-zinc-400 focus:outline-none">
+                                {isVisible ? <EyeOff size={16} /> : <Eye size={16} />}
+                            </button>
+                        </InputGroup>
+                        {errors.password && <p className="text-[10px] text-red-500 mt-0.5">{errors.password}</p>}
+                    </TextField>
+
+                    <Button
+                        type="submit"
+                        className="w-full h-11 mt-2 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-amber-500 to-orange-600 shadow-md shadow-orange-950/10 hover:opacity-95 active:scale-[0.99] transition-all"
+                        isDisabled={isLoading}
+                    >
+                        {isLoading ? "Registering..." : "Register"}
+                    </Button>
+                    
+                    {/* Divider */}
+                    <div className="relative flex items-center py-2">
+                        <div className="flex-grow border-t border-zinc-200"></div>
+                        <span className="flex-shrink-0 mx-4 text-xs font-medium text-zinc-400">OR</span>
+                        <div className="flex-grow border-t border-zinc-200"></div>
+                    </div>
+
+                    {/* Google Sign-in Button */}
+                    <Button
+                        type="button"
+                        onClick={handleGoogleSignup}
+                        className="w-full h-11 rounded-xl font-medium text-sm text-zinc-700 bg-white border border-zinc-200 hover:bg-zinc-50 active:scale-[0.99] transition-all flex items-center justify-center gap-2 shadow-sm"
+                        isDisabled={isLoading}
+                    >
+                        <FcGoogle size={20} />
+                        Sign up with Google
+                    </Button>
+
+                    {/* Login Link for existing users */}
+                    <p className="text-center text-xs text-zinc-500 mt-2">
+                        Already have an account?{" "}
+                        <Link 
+                            href={`/auth/login?callbackUrl=${encodeURIComponent(callbackUrl)}`} 
+                            className="text-amber-600 font-semibold hover:underline"
+                        >
+                            Log in
+                        </Link>
+                    </p>
+                </form>
             </div>
+
+            {/* Right Side: Animation */}
+            <AuthAnimation />
+        </div>
+    );
+}
+
+// 2. Wrap the component in a Suspense boundary in the default export
+export default function RegisterComponent() {
+    return (
+        <div className="min-h-screen flex items-center justify-center p-4 bg-[#F8FAFC]">
+            <Suspense 
+                fallback={
+                    <div className="flex items-center justify-center">
+                        <RefreshCw className="animate-spin text-amber-500" size={32} />
+                    </div>
+                }
+            >
+                <RegisterForm />
+            </Suspense>
         </div>
     );
 }

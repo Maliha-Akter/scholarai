@@ -12,7 +12,7 @@ import { authClient } from '@/app/lib/auth-client';
 
 export default function Footer() {
   // Default callback URL upon successful Google login
-  const callbackUrl = "/dashboard";
+  const callbackUrl = "/";
 
   const handleGoogleLogin = async () => {
     await authClient.signIn.social({ 

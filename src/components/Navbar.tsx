@@ -23,6 +23,7 @@ export default function Navbar() {
     const [isOpen, setIsOpen] = useState(false);
     const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
     const [isLoggingOut, setIsLoggingOut] = useState(false);
+    const [imageError, setImageError] = useState(false);
 
     const dropdownRef = useRef<HTMLDivElement>(null);
     const menuRef = useRef<HTMLDivElement>(null);
@@ -76,7 +77,7 @@ export default function Navbar() {
             href: '/ai-recommender',
             icon: <Sparkles className="w-4 h-4 mr-1.5" />
         },
-        
+
     ];
 
     const activeLinks = isLoggedIn ? loggedInLinks : loggedOutLinks;
@@ -128,8 +129,8 @@ export default function Navbar() {
                                 key={link.label}
                                 href={link.href}
                                 className={`inline-flex items-center text-sm font-medium transition-colors duration-200 ${pathname === link.href
-                                        ? "text-[#7C3AED] font-semibold"
-                                        : "text-[#0F172A] hover:text-[#1D4ED8]"
+                                    ? "text-[#7C3AED] font-semibold"
+                                    : "text-[#0F172A] hover:text-[#1D4ED8]"
                                     }`}
                             >
                                 {link.icon}
@@ -149,10 +150,17 @@ export default function Navbar() {
                                     onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
                                     className="flex items-center justify-center h-10 w-10 rounded-full border-2 border-white shadow-sm bg-gradient-to-br from-[#1D4ED8] to-[#7C3AED] text-white font-bold overflow-hidden focus:outline-none hover:opacity-90 transition-opacity"
                                 >
-                                    {user?.image ? (
-                                        <img src={user.image} alt="User profile" className="h-full w-full object-cover" />
+                                    {user?.image && !imageError ? (
+                                        <img
+                                            src={user.image}
+                                            alt="User profile"
+                                            className="h-full w-full object-cover"
+                                            onError={() => setImageError(true)} // <-- Triggers the fallback if the image fails to load
+                                        />
                                     ) : (
-                                        <span>{user?.name?.charAt(0).toUpperCase() || <UserIcon className="w-5 h-5" />}</span>
+                                        <span>
+                                            {user?.name?.charAt(0).toUpperCase() || <UserIcon className="w-5 h-5" />}
+                                        </span>
                                     )}
                                 </button>
 
@@ -268,8 +276,8 @@ export default function Navbar() {
                             href={link.href}
                             onClick={() => setIsOpen(false)}
                             className={`flex items-center px-3 py-3 rounded-lg text-base font-medium transition-all ${pathname === link.href
-                                    ? "text-[#7C3AED] bg-purple-50/50 font-semibold"
-                                    : "text-[#0F172A] hover:text-[#1D4ED8] hover:bg-blue-50/50"
+                                ? "text-[#7C3AED] bg-purple-50/50 font-semibold"
+                                : "text-[#0F172A] hover:text-[#1D4ED8] hover:bg-blue-50/50"
                                 }`}
                         >
                             <span className="mr-3">{link.icon}</span>

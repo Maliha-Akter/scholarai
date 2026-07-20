@@ -70,6 +70,7 @@ interface ScholarshipDetails {
     eligibility: Eligibility;
     funding: Funding;
     requiredDocuments: string[];
+    subject: string[];
 }
 
 // Extract constants outside the component to avoid unnecessary hook re-creations
@@ -482,7 +483,7 @@ export default function ScholarshipDetailsPage() {
         : "TBA";
 
     return (
-        <div className="min-h-screen bg-slate-50 pb-20 relative">
+        <div className="min-h-screen container mx-auto bg-slate-50 pb-20 relative">
             {/* Apply Modal */}
             {showApplyModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
@@ -544,6 +545,20 @@ export default function ScholarshipDetailsPage() {
                                 {scholarship.title}
                             </h1>
                             <p className="text-xl text-slate-600 mb-6 font-medium">{scholarship.universityName}</p>
+                            <div className="flex flex-wrap gap-2 mb-6">
+                                {Array.isArray(scholarship.subject) ? (
+                                    scholarship.subject.map((sub, index) => (
+                                        <span
+                                            key={index}
+                                            className="px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full text-sm font-medium"
+                                        >
+                                            {sub}
+                                        </span>
+                                    ))
+                                ) : (
+                                    <span>{String(scholarship.subject || "")}</span>
+                                )}
+                            </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
                                 <div className="flex items-center text-slate-600">

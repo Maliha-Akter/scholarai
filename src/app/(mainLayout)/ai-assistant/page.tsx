@@ -25,7 +25,7 @@ export default function AIAssistantPage() {
 
     try {
       // 2. Send FULL history to backend
-      const res = await fetch("http://localhost:5000/ai/chat", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ai/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messages: newMessages }),

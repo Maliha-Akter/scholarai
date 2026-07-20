@@ -15,7 +15,7 @@ export default function SmartRecommendationPage() {
     setLoading(true);
     try {
       const token = localStorage.getItem("token"); 
-      const res = await fetch("http://localhost:5000/api/ai/recommend", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/ai/recommend`, {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
@@ -103,7 +103,7 @@ export default function SmartRecommendationPage() {
             <ul className="list-none">{formatAIResponse(recommendations)}</ul>
           ) : (
             <p className="text-gray-400 italic">
-              Select your preferences and click 'Get Recommendations' to see personalized matches from our database.
+              Select your preferences and click `Get Recommendations` to see personalized matches from our database.
             </p>
           )}
         </div>

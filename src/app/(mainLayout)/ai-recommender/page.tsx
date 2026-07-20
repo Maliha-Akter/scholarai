@@ -33,7 +33,7 @@ export default function SmartRecommendationPage() {
     const fetchFilters = async () => {
       try {
         setFilterLoading(true);
-        const res = await fetch("http://localhost:5000/api/filters");
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/filters`);
         if (!res.ok) throw new Error("Network response was not ok");
         const data = await res.json();
         
@@ -57,7 +57,7 @@ export default function SmartRecommendationPage() {
     setRecommendations("");
     try {
       const token = localStorage.getItem("token"); 
-      const res = await fetch("http://localhost:5000/api/ai/recommend", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/ai/recommend`, {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
