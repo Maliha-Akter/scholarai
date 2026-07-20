@@ -15,13 +15,54 @@ import {
 import { toast } from "react-toastify";
 import { authClient } from "@/app/lib/auth-client";
 
+interface FormDataState {
+    title: string;
+    slug: string;
+    image: string;
+    universityName: string;
+    country: string;
+    city: string;
+    degree: string;
+    subject: string;
+    fundingType: string;
+    funding: {
+        tuitionCoverage: string;
+        accommodation: boolean;
+        monthlyStipend: string | number;
+        travelAllowance: boolean;
+        healthInsurance: boolean;
+        visaSupport: boolean;
+        otherBenefits: string;
+    };
+    applicationOpen: string;
+    applicationDeadline: string;
+    intake: string;
+    shortDescription: string;
+    overview: string;
+    eligibility: {
+        minimumCGPA: string | number;
+        minimumIELTS: string | number;
+        minimumTOEFL: string | number;
+        ageLimit: string | number;
+        nationality: string;
+        acceptedDegrees: string;
+        workExperience: string;
+        languageRequirement: string;
+    };
+    requiredDocuments: string;
+    applicationUrl: string;
+    tags: string;
+    isFeatured: boolean;
+    isActive: boolean;
+}
+
 export default function AddScholarshipPage() {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    // Initial Form State - Changed 0 to "" so 'required' blocks empty inputs
-    const [formData, setFormData] = useState({
+    // Initial Form State
+    const [formData, setFormData] = useState<FormDataState>({
         title: "",
         slug: "",
         image: "",
@@ -34,7 +75,7 @@ export default function AddScholarshipPage() {
         funding: {
             tuitionCoverage: "",
             accommodation: false,
-            monthlyStipend: "" as any, 
+            monthlyStipend: "", 
             travelAllowance: false,
             healthInsurance: false,
             visaSupport: false,
@@ -46,10 +87,10 @@ export default function AddScholarshipPage() {
         shortDescription: "",
         overview: "",
         eligibility: {
-            minimumCGPA: "" as any,
-            minimumIELTS: "" as any,
-            minimumTOEFL: "" as any,
-            ageLimit: "" as any,
+            minimumCGPA: "",
+            minimumIELTS: "",
+            minimumTOEFL: "",
+            ageLimit: "",
             nationality: "",
             acceptedDegrees: "",
             workExperience: "",
@@ -153,8 +194,13 @@ export default function AddScholarshipPage() {
 
             toast.success("Scholarship created successfully!");
             router.push("/dashboard/scholarships/view"); 
-        } catch (err: any) {
-            toast.error(err.message || "An unexpected error occurred. Please try again.");
+        } catch (err: unknown) {
+            if (err instanceof Error) {
+                toast.error(err.message || "An unexpected error occurred. Please try again.");
+                setError(err.message);
+            } else {
+                toast.error("An unexpected error occurred. Please try again.");
+            }
         } finally {
             setIsLoading(false);
         }
@@ -173,7 +219,6 @@ export default function AddScholarshipPage() {
                         <h1 className="text-3xl font-bold text-slate-900">Add New Scholarship</h1>
                         <p className="text-slate-500 mt-1">Fill in the details to publish a new scholarship opportunity.</p>
                     </div>
-                    {/* FIXED: Added type="submit" and form="scholarship-form" attributes */}
                     <button 
                         type="submit"
                         form="scholarship-form"
@@ -191,7 +236,6 @@ export default function AddScholarshipPage() {
                     </div>
                 )}
 
-                {/* FIXED: Added id="scholarship-form" to connect with header button */}
                 <form id="scholarship-form" className="space-y-8" onSubmit={handleSubmit}>
                     
                     {/* SECTION 1: Basic Information */}

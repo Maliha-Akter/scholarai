@@ -2,16 +2,17 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { 
-    Search, 
-    MapPin, 
-    GraduationCap, 
+import {
+    Search,
+    MapPin,
+    GraduationCap,
     Filter,
     ChevronLeft,
     ChevronRight,
     ArrowRight,
     Landmark
 } from "lucide-react";
+import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 
 // Types based on the aggregated data structure for universities
 interface UniversitySummary {
@@ -59,7 +60,7 @@ export default function UniversitiesPage() {
         setError(null);
 
         try {
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL ;
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
             const queryParams = new URLSearchParams({
                 page: filters.page.toString(),
@@ -99,7 +100,7 @@ export default function UniversitiesPage() {
     return (
         <div className="min-h-screen bg-slate-50 py-12 px-4 sm:px-6 lg:px-8">
             <div className="max-w-7xl mx-auto">
-                
+
                 {/* Header */}
                 <div className="mb-8">
                     <h1 className="text-4xl font-bold text-slate-900">Browse Universities</h1>
@@ -109,11 +110,11 @@ export default function UniversitiesPage() {
                 {/* Top Controls: Search, Filters, Sorting */}
                 <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-200 mb-8">
                     <div className="flex flex-col md:flex-row gap-4 justify-between items-center">
-                        
+
                         {/* Search Bar */}
                         <form onSubmit={handleSearchSubmit} className="w-full md:w-1/3 relative">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                            <input 
+                            <input
                                 type="text"
                                 name="search"
                                 value={filters.search}
@@ -125,7 +126,7 @@ export default function UniversitiesPage() {
 
                         {/* Dropdown Filters */}
                         <div className="flex flex-wrap w-full md:w-auto gap-3 flex-1 md:justify-end">
-                            
+
                             {/* Example Country Filter */}
                             <select name="country" value={filters.country} onChange={handleFilterChange} className="p-2.5 border rounded-lg bg-white outline-none focus:ring-2 focus:ring-blue-500 text-sm">
                                 <option value="">All Countries</option>
@@ -158,7 +159,9 @@ export default function UniversitiesPage() {
                         </button>
                     </div>
                 )}
-
+                {isLoading && (
+                    <LoadingSpinner />
+                )}
                 {/* Loading State (Skeleton) */}
                 {isLoading && (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -186,7 +189,7 @@ export default function UniversitiesPage() {
                         <Filter className="w-12 h-12 text-slate-300 mx-auto mb-4" />
                         <h3 className="text-xl font-semibold text-slate-900">No universities found</h3>
                         <p className="text-slate-500 mt-2">Try adjusting your search or filters to find what you're looking for.</p>
-                        <button 
+                        <button
                             onClick={() => setFilters({ search: "", country: "", sort: "universityName", page: 1 })}
                             className="mt-6 text-blue-600 hover:text-blue-700 font-medium transition-colors"
                         >
@@ -200,7 +203,7 @@ export default function UniversitiesPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                         {universities.map((uni) => (
                             <div key={uni._id} className="bg-white rounded-xl p-6 shadow-sm border border-slate-200 flex flex-col hover:shadow-lg transition-shadow duration-300 group">
-                                
+
                                 <div className="flex items-center gap-4 mb-6">
                                     <div className="w-14 h-14 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 flex-shrink-0 group-hover:bg-blue-600 group-hover:text-white transition-colors duration-300">
                                         <Landmark className="w-7 h-7" />
@@ -223,12 +226,12 @@ export default function UniversitiesPage() {
                                         <GraduationCap className="w-4 h-4 mr-1.5" />
                                         {uni.totalScholarships} {uni.totalScholarships === 1 ? 'Scholarship' : 'Scholarships'}
                                     </div>
-                                    
-                                    <Link 
+
+                                    <Link
                                         href={`/universities/${encodeURIComponent(uni.universityName)}`}
                                         className="text-sm font-semibold text-slate-600 hover:text-blue-600 transition-colors flex items-center"
                                     >
-                                        View 
+                                        View
                                         <ArrowRight className="w-4 h-4 ml-1 opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all duration-300" />
                                     </Link>
                                 </div>
@@ -240,31 +243,30 @@ export default function UniversitiesPage() {
                 {/* Pagination */}
                 {!isLoading && totalPages > 1 && (
                     <div className="flex items-center justify-center gap-2 mt-12">
-                        <button 
+                        <button
                             disabled={filters.page === 1}
                             onClick={() => setFilters(prev => ({ ...prev, page: prev.page - 1 }))}
                             className="p-2 border rounded-lg bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                         >
                             <ChevronLeft className="w-5 h-5" />
                         </button>
-                        
+
                         <div className="flex items-center gap-1">
                             {[...Array(totalPages)].map((_, i) => (
                                 <button
                                     key={i}
                                     onClick={() => setFilters(prev => ({ ...prev, page: i + 1 }))}
-                                    className={`w-10 h-10 rounded-lg text-sm font-medium transition-colors ${
-                                        filters.page === i + 1 
-                                            ? "bg-blue-600 text-white border-blue-600" 
+                                    className={`w-10 h-10 rounded-lg text-sm font-medium transition-colors ${filters.page === i + 1
+                                            ? "bg-blue-600 text-white border-blue-600"
                                             : "bg-white text-slate-600 border hover:bg-slate-50"
-                                    }`}
+                                        }`}
                                 >
                                     {i + 1}
                                 </button>
                             ))}
                         </div>
 
-                        <button 
+                        <button
                             disabled={filters.page === totalPages}
                             onClick={() => setFilters(prev => ({ ...prev, page: prev.page + 1 }))}
                             className="p-2 border rounded-lg bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
