@@ -1,7 +1,7 @@
 // src/app/dashboard/layout.tsx
 import React from 'react';
 import DashboardLayoutClient from './DashboardLayoutClient';
-import { requireRole } from '@/lib/security/session'; // Adjust path if not using "@/" alias (e.g., "../../lib/security/session")
+import { requireRole } from '../lib/security/session'; // Adjust path if not using "@/" alias (e.g., "../../lib/security/session")
 
 // ✅ Metadata stays here cleanly without throwing Client Component errors!
 export const metadata = {

@@ -293,7 +293,7 @@ export default function ScholarshipsPage() {
 
                                     {/* Action Button */}
                                     <Link 
-                                        href={`/dashboard/scholarships/view/${scholarship._id}`}
+                                        href={`/scholarships/view/${scholarship._id}`}
                                         className="w-full flex items-center justify-center py-2.5 px-4 bg-slate-50 hover:bg-blue-600 text-slate-700 hover:text-white border border-slate-200 hover:border-blue-600 rounded-lg transition-colors font-medium text-sm group"
                                     >
                                         View Details
