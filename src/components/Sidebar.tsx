@@ -65,7 +65,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
             icon: <Sparkles className="w-5 h-5" /> 
         },
         { 
-            label: 'AI Recommended Scholarships', 
+            label: 'AI Scholarship Recommender', 
             href: '/ai-recommender', 
             icon: <Sparkles className="w-5 h-5" /> 
         },
