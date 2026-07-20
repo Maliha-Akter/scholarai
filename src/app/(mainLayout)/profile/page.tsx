@@ -5,7 +5,6 @@ import { Card, Button, Input, Spinner } from "@heroui/react";
 import { User, Mail, Shield, Edit3, Save, X, Upload, Loader2, Award } from "lucide-react";
 import { toast } from "react-toastify";
 import { authClient } from "@/app/lib/auth-client";
-import { useMutation } from "@tanstack/react-query";
 
 interface UserProfile {
     id: string;
@@ -21,6 +20,8 @@ export default function UserProfilePage() {
     const { data: session, isPending: sessionLoading } = authClient.useSession();
     const fileInputRef = useRef<HTMLInputElement>(null);
 
+    const [isSaving, setIsSaving] = useState(false);
+    const [isUploading, setIsUploading] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     
     // 💡 No useEffect needed! We initialize empty and populate onClick when editing starts.
@@ -34,67 +35,58 @@ export default function UserProfilePage() {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    // 1. Upload Image Mutation
-    const uploadMutation = useMutation({
-        mutationFn: async (file: File) => {
-            const uploadData = new FormData();
-            uploadData.append("image", file);
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
 
+        setIsUploading(true);
+        const uploadData = new FormData();
+        uploadData.append("image", file);
+
+        try {
             const response = await fetch("/api/upload", {
                 method: "POST",
                 body: uploadData
             });
             const data = await response.json();
 
-            if (!data.success) {
+            if (data.success) {
+                setFormData(prev => ({ ...prev, image: data.data.url }));
+                toast.success("Profile image uploaded!");
+            } else {
                 throw new Error(data.message || "Upload failed");
             }
-            return data.data.url;
-        },
-        onSuccess: (url) => {
-            setFormData(prev => ({ ...prev, image: url }));
-            toast.success("Profile image uploaded!");
-        },
-        onError: (err) => {
+        } catch (err: unknown) {
             const errorMessage = err instanceof Error ? err.message : "Failed to upload image.";
             toast.error(errorMessage);
+        } finally {
+            setIsUploading(false);
         }
-    });
+    };
 
-    // 2. Update Profile Mutation
-    const updateProfileMutation = useMutation({
-        mutationFn: async (updateData: { name: string; image: string }) => {
-            const res = await authClient.updateUser(updateData);
+    const handleSave = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsSaving(true);
+
+        try {
+            const res = await authClient.updateUser({
+                name: formData.name,
+                image: formData.image,
+            });
+
             if (res.error) {
                 throw new Error(res.error.message || "Failed to update profile.");
             }
-            return res;
-        },
-        onSuccess: () => {
+
             toast.success("Profile updated successfully!");
             setIsEditing(false);
-        },
-        onError: (err) => {
+        } catch (err: unknown) {
             const errorMessage = err instanceof Error ? err.message : "Something went wrong.";
             console.error("Profile Update Error:", err);
             toast.error(errorMessage);
+        } finally {
+            setIsSaving(false);
         }
-    });
-
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-        
-        uploadMutation.mutate(file);
-    };
-
-    const handleSave = (e: React.FormEvent) => {
-        e.preventDefault();
-        
-        updateProfileMutation.mutate({
-            name: formData.name,
-            image: formData.image,
-        });
     };
 
     if (sessionLoading) {
@@ -126,7 +118,7 @@ export default function UserProfilePage() {
                     <div className="flex flex-col sm:flex-row items-center gap-5 pb-6 border-b border-slate-100 mb-6">
                         {/* Avatar Framed with Violet/Blue accents */}
                         <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-[#7C3AED]/30 ring-4 ring-[#1D4ED8]/10 shadow-sm shrink-0 bg-slate-50 flex items-center justify-center relative">
-                            {uploadMutation.isPending ? (
+                            {isUploading ? (
                                 <Loader2 className="animate-spin text-[#7C3AED]" />
                             ) : (
                                 <img
@@ -195,10 +187,10 @@ export default function UserProfilePage() {
                                         <button
                                             type="button"
                                             onClick={() => fileInputRef.current?.click()}
-                                            disabled={uploadMutation.isPending}
+                                            disabled={isUploading}
                                             className="text-xs font-bold text-[#7C3AED] hover:text-[#1D4ED8] hover:underline flex items-center gap-1 transition-colors"
                                         >
-                                            {uploadMutation.isPending ? "Uploading..." : <><Upload size={12} className="text-[#FBBF24]" /> Upload File</>}
+                                            {isUploading ? "Uploading..." : <><Upload size={12} className="text-[#FBBF24]" /> Upload File</>}
                                         </button>
                                     )}
                                 </div>
@@ -210,7 +202,7 @@ export default function UserProfilePage() {
                                     onChange={handleFileChange}
                                 />
                                 <Input
-                                    disabled={!isEditing || uploadMutation.isPending}
+                                    disabled={!isEditing || isUploading}
                                     type="url"
                                     name="image"
                                     pattern="https?://.+"
@@ -261,13 +253,13 @@ export default function UserProfilePage() {
                                 {/* Save Button: Midnight Blue to Violet Gradient */}
                                 <Button
                                     type="submit"
-                                    isDisabled={updateProfileMutation.isPending}
+                                    isDisabled={isSaving}
                                     className={`flex items-center gap-2 rounded-xl font-bold text-sm bg-gradient-to-r from-[#1D4ED8] to-[#7C3AED] hover:opacity-95 text-white shadow-lg shadow-[#7C3AED]/25 px-6 transition-all ${
-                                        updateProfileMutation.isPending ? 'opacity-70 cursor-not-allowed' : ''
+                                        isSaving ? 'opacity-70 cursor-not-allowed' : ''
                                     }`}
                                 >
-                                    {updateProfileMutation.isPending ? <Loader2 size={15} className="animate-spin text-[#FBBF24]" /> : <Save size={15} className="text-[#FBBF24]" />}
-                                    {updateProfileMutation.isPending ? "Saving..." : "Save Changes"}
+                                    {isSaving ? <Loader2 size={15} className="animate-spin text-[#FBBF24]" /> : <Save size={15} className="text-[#FBBF24]" />}
+                                    {isSaving ? "Saving..." : "Save Changes"}
                                 </Button>
                             </div>
                         )}

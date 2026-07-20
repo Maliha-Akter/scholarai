@@ -1,6 +1,5 @@
 "use client";
-import { useState } from "react";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
 
 interface FilterOptions {
   countries: string[];
@@ -10,6 +9,18 @@ interface FilterOptions {
 }
 
 export default function SmartRecommendationPage() {
+  const [loading, setLoading] = useState(false);
+  const [filterLoading, setFilterLoading] = useState(true);
+  const [recommendations, setRecommendations] = useState("");
+  
+  // CRITERIA 1 & 2: Dynamic state handling dynamic database filters
+  const [options, setOptions] = useState<FilterOptions>({
+    countries: [],
+    degrees: [],
+    subjects: [],
+    fundingTypes: []
+  });
+
   const [formData, setFormData] = useState({
     country: "",
     degree: "",
@@ -17,42 +28,52 @@ export default function SmartRecommendationPage() {
     fundingType: "",
   });
 
-  // 1. Fetching filters using useQuery instead of useEffect
-  const { data: options = { countries: [], degrees: [], subjects: [], fundingTypes: [] }, isLoading: filterLoading } = useQuery<FilterOptions>({
-    queryKey: ["filters"],
-    queryFn: async () => {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/filters`);
-      if (!res.ok) throw new Error("Network response was not ok");
-      const data = await res.json();
-      
-      return {
-        countries: data.countries || [],
-        degrees: data.degrees || [],
-        subjects: data.subjects || [],
-        fundingTypes: data.fundingTypes || []
-      };
-    },
-  });
+  // Pull active filter options from the database collection values on mount
+  useEffect(() => {
+    const fetchFilters = async () => {
+      try {
+        setFilterLoading(true);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/filters`);
+        if (!res.ok) throw new Error("Network response was not ok");
+        const data = await res.json();
+        
+        setOptions({
+          countries: data.countries || [],
+          degrees: data.degrees || [],
+          subjects: data.subjects || [],
+          fundingTypes: data.fundingTypes || []
+        });
+      } catch (err) {
+        console.error("Failed to fetch operational database filters:", err);
+      } finally {
+        setFilterLoading(false);
+      }
+    };
+    fetchFilters();
+  }, []);
 
-  // 2. Handling recommendation generation using useMutation
-  const recommendMutation = useMutation({
-    mutationFn: async (submitData: typeof formData) => {
-      const token = localStorage.getItem("token"); 
+  const getRecommendations = async () => {
+    setLoading(true);
+    setRecommendations("");
+    try {
+      const token = localStorage.getItem("token");
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/ai/recommend`, {
         method: "POST",
-        headers: { 
+        headers: {
           "Content-Type": "application/json",
           ...(token && { "Authorization": `Bearer ${token}` })
         },
-        body: JSON.stringify(submitData),
+        body: JSON.stringify(formData),
       });
-
-      if (!res.ok) throw new Error("Error connecting to Advisor Engine");
-      
       const data = await res.json();
-      return data.recommendations || "No recommendations generated.";
+      setRecommendations(data.recommendations || "No recommendations generated.");
+    } catch (err) {
+      console.error(err);
+      setRecommendations("⚠️ Error connecting to Advisor Engine. Verify backend status.");
+    } finally {
+      setLoading(false);
     }
-  });
+  };
 
   // Regular Expression markdown parser for live formatting outputs
   const formatAIResponse = (text: string) => {
@@ -70,7 +91,7 @@ export default function SmartRecommendationPage() {
 
       // Convert Markdown bold (**text**) parameters into inline style elements
       const parts = currentLine.split(/\*\*([\s\S]*?)\*\*/g);
-      const renderedContent = parts.map((part, i) => 
+      const renderedContent = parts.map((part, i) =>
         i % 2 === 1 ? <strong key={i} className="font-semibold text-gray-900 bg-blue-50/70 px-1 rounded">{part}</strong> : part
       );
 
@@ -109,7 +130,7 @@ export default function SmartRecommendationPage() {
           {/* Target Country Dropdown Selection */}
           <div>
             <label className="block font-medium mb-1 text-gray-700 text-sm">Country</label>
-            <select 
+            <select
               className="w-full p-3 border rounded-lg bg-white border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none transition-all disabled:bg-gray-100 text-gray-800"
               value={formData.country}
               disabled={filterLoading}
@@ -125,7 +146,7 @@ export default function SmartRecommendationPage() {
           {/* Degree Selector */}
           <div>
             <label className="block font-medium mb-1 text-gray-700 text-sm">Degree</label>
-            <select 
+            <select
               className="w-full p-3 border rounded-lg bg-white border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none transition-all disabled:bg-gray-100 text-gray-800"
               value={formData.degree}
               disabled={filterLoading}
@@ -141,7 +162,7 @@ export default function SmartRecommendationPage() {
           {/* Subject Selector */}
           <div>
             <label className="block font-medium mb-1 text-gray-700 text-sm">Subject</label>
-            <select 
+            <select
               className="w-full p-3 border rounded-lg bg-white border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none transition-all disabled:bg-gray-100 text-gray-800"
               value={formData.subject}
               disabled={filterLoading}
@@ -157,7 +178,7 @@ export default function SmartRecommendationPage() {
           {/* Funding Selector */}
           <div>
             <label className="block font-medium mb-1 text-gray-700 text-sm">Funding Type</label>
-            <select 
+            <select
               className="w-full p-3 border rounded-lg bg-white border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none transition-all disabled:bg-gray-100 text-gray-800"
               value={formData.fundingType}
               disabled={filterLoading}
@@ -171,11 +192,11 @@ export default function SmartRecommendationPage() {
           </div>
 
           <button
-            onClick={() => recommendMutation.mutate(formData)}
-            disabled={recommendMutation.isPending || filterLoading}
+            onClick={getRecommendations}
+            disabled={loading || filterLoading}
             className="w-full bg-blue-600 text-white p-4 rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed font-bold mt-4 shadow-md transition-all active:scale-[0.99]"
           >
-            {recommendMutation.isPending ? "🔍 Analyzing Database..." : "✨ Get Recommendations"}
+            {loading ? "🔍 Analyzing Database..." : "✨ Get Recommendations"}
           </button>
         </div>
       </div>
@@ -186,16 +207,14 @@ export default function SmartRecommendationPage() {
           <span>🎯</span> AI Recommendations
         </h2>
         <div className="text-gray-700 text-sm leading-relaxed">
-          {recommendMutation.isPending ? (
+          {loading ? (
             <div className="space-y-3 animate-pulse mt-4">
               <div className="h-4 bg-gray-200 rounded w-3/4"></div>
               <div className="h-4 bg-gray-200 rounded"></div>
               <div className="h-4 bg-gray-200 rounded w-5/6"></div>
             </div>
-          ) : recommendMutation.isError ? (
-            <p className="text-red-500 font-medium">⚠️ Error connecting to Advisor Engine. Verify backend status.</p>
-          ) : recommendMutation.data ? (
-            <div className="space-y-1">{formatAIResponse(recommendMutation.data)}</div>
+          ) : recommendations ? (
+            <div className="space-y-1">{formatAIResponse(recommendations)}</div>
           ) : (
             <p className="text-gray-400 italic text-center pt-12">
               Select your options and click 'Get Recommendations' to see weighted matches.

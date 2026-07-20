@@ -66,6 +66,11 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
             icon: <Sparkles className="w-5 h-5" /> 
         },
         { 
+            label: 'AI Recommended Scholarships', 
+            href: '/ai-recommender', 
+            icon: <Sparkles className="w-5 h-5" /> 
+        },
+        { 
             label: 'Add New Scholarship', 
             href: '/dashboard/scholarships/add', 
             icon: <FilePlus className="w-5 h-5" /> 

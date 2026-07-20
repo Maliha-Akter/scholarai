@@ -26,13 +26,15 @@ function RegisterForm() {
     const [fileName, setFileName] = useState("");   // stores the uploaded file name for display
 
     const [errors, setErrors] = useState<Record<string, string | null>>({});
+    const [isLoading, setIsLoading] = useState(false);
     const [isVisible, setIsVisible] = useState(false);
 
     const toggleVisibility = () => setIsVisible(!isVisible);
 
     // Form validation
     const validateForm = () => {
-        let newErrors: Record<string, string> = {};
+        // Changed 'let' to 'const' to fix the ESLint warning
+        const newErrors: Record<string, string> = {};
 
         if (name.length < 2) newErrors.name = "Name must be at least 2 characters.";
         if (!/\S+@\S+\.\S+/.test(email)) newErrors.email = "Please enter a valid email address.";
@@ -46,82 +48,74 @@ function RegisterForm() {
         return Object.keys(newErrors).length === 0;
     };
 
-    // --- TanStack Mutations ---
-
-    // Signup Mutation
-    const signupMutation = useMutation({
-        mutationFn: async (payload: Parameters<typeof authClient.signUp.email>[0]) => {
-            const { data, error } = await authClient.signUp.email(payload);
-            if (error) {
-                throw new Error(error.message || "Signup failed.");
-            }
-            return data;
-        },
-        onSuccess: async () => {
-            toast.success("Account created successfully!");
-            await authClient.signOut();
-            
-            const redirectTo = `/auth/login?callbackUrl=${encodeURIComponent(callbackUrl)}`;
-            router.push(redirectTo);
-
-            // Reset form
-            setName("");
-            setEmail("");
-            setPassword("");
-            setImage("");
-            setFileName("");
-            setErrors({});
-        },
-        onError: (error: any) => {
-            toast.error(error.message || "An unexpected network error occurred.");
-        },
-    });
-
-    // File Upload Mutation
-    const uploadMutation = useMutation({
-        mutationFn: async (file: File) => {
-            const formData = new FormData();
-            formData.append("image", file);
-
-            const response = await fetch("/api/upload", { method: "POST", body: formData });
-            const data = await response.json();
-
-            if (!data.success) {
-                throw new Error(data.message || "Upload failed");
-            }
-            return data.data.url; // Assuming backend returns url here
-        },
-        onSuccess: (url) => {
-            setImage(url);
-            setFileName("");
-            toast.success("File uploaded successfully!");
-        },
-        onError: (error: any) => {
-            toast.error(error.message || "Failed to upload the image.");
-            setFileName("");
-        },
-    });
-
-    // --- Handlers ---
-    const handleSignup = (e: React.FormEvent) => {
+    const handleSignup = async (e: React.FormEvent) => {
         e.preventDefault();
 
         if (!validateForm()) return;
 
-        signupMutation.mutate({
+        setIsLoading(true);
+
+        const registrationPayload = {
             email,
             password,
             name,
             image: image || "",
-        });
+        };
+
+        try {
+            const { error: authError } = await authClient.signUp.email(registrationPayload);
+
+            if (authError) {
+                toast.error(authError.message || "Signup failed.");
+            } else {
+                toast.success("Account created successfully!");
+
+                await authClient.signOut();
+                const redirectTo = `/auth/login?callbackUrl=${encodeURIComponent(callbackUrl)}`;
+                router.push(redirectTo);
+
+                // Reset form
+                setName("");
+                setEmail("");
+                setPassword("");
+                setImage("");
+                setFileName("");
+                setErrors({});
+            }
+        } catch (err) {
+            toast.error("An unexpected network error occurred.");
+        } finally {
+            setIsLoading(false);
+        }
     };
 
-    const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
 
         setFileName(file.name);
-        uploadMutation.mutate(file);
+        setIsLoading(true);
+        const formData = new FormData();
+        formData.append("image", file);
+
+        try {
+            const response = await fetch("/api/upload", { method: "POST", body: formData });
+            const data = await response.json();
+
+            if (data.success) {
+                setImage(data.data.url);
+                setFileName("");
+                toast.success("File uploaded successfully!");
+            } else {
+                toast.error("Upload failed");
+                setFileName("");
+            }
+        } catch (err) {
+            toast.error("Failed to upload the image.");
+            setFileName("");
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const handleGoogleSignup = async () => {
@@ -134,9 +128,6 @@ function RegisterForm() {
             toast.error("Failed to authenticate with Google.");
         }
     };
-
-    // General disabled flag if either operation is executing
-    const isAnyPending = signupMutation.isPending || uploadMutation.isPending;
 
     return (
         <div className="w-full max-w-5xl flex rounded-[32px] overflow-hidden shadow-2xl bg-white border border-slate-200 min-h-[600px]">
@@ -157,7 +148,6 @@ function RegisterForm() {
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
                                 className="w-full bg-transparent py-2 text-sm text-zinc-900 outline-none placeholder:text-zinc-400"
-                                disabled={isAnyPending}
                             />
                         </InputGroup>
                         {errors.name && <p className="text-[10px] text-red-500 mt-0.5">{errors.name}</p>}
@@ -173,7 +163,6 @@ function RegisterForm() {
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 className="w-full bg-transparent py-2 text-sm text-zinc-900 outline-none placeholder:text-zinc-400"
-                                disabled={isAnyPending}
                             />
                         </InputGroup>
                         {errors.email && <p className="text-[10px] text-red-500 mt-0.5">{errors.email}</p>}
@@ -183,7 +172,7 @@ function RegisterForm() {
                     <div className="flex flex-col gap-1.5">
                         <div className="flex justify-between items-center">
                             <Label className="text-xs font-medium text-zinc-600">Avatar</Label>
-                            <span className="text-[9px] text-zinc-400">{fileName || "Paste URL or upload a file"}</span>
+                            <span className="text-[9px] text-zinc-400">Paste URL or upload a file</span>
                         </div>
                         <InputGroup className="flex items-center gap-2 border border-zinc-200 rounded-xl px-3 bg-zinc-50 focus-within:border-[#7C3AED] transition-colors">
                             <ImageIcon className="text-zinc-400" size={16} />
@@ -193,7 +182,6 @@ function RegisterForm() {
                                 value={image}
                                 onChange={(e) => setImage(e.target.value)}
                                 className="w-full bg-transparent py-2 text-sm text-zinc-900 outline-none placeholder:text-zinc-400"
-                                disabled={isAnyPending}
                             />
                             <input
                                 type="file"
@@ -201,17 +189,13 @@ function RegisterForm() {
                                 onChange={handleFileUpload}
                                 className="hidden"
                                 id="file-upload"
-                                disabled={isAnyPending}
+                                disabled={isLoading}
                             />
                             <label
                                 htmlFor="file-upload"
-                                className={`text-xs font-bold whitespace-nowrap transition-colors ${
-                                    isAnyPending 
-                                    ? "text-zinc-400 cursor-not-allowed" 
-                                    : "text-[#7C3AED] cursor-pointer hover:text-[#5B21B6]"
-                                }`}
+                                className="cursor-pointer text-[#7C3AED] text-xs font-bold whitespace-nowrap hover:text-[#5B21B6] transition-colors"
                             >
-                                {uploadMutation.isPending ? "Uploading..." : "Upload File"}
+                                {isLoading ? "Uploading..." : "Upload File"}
                             </label>
                         </InputGroup>
                     </div>
@@ -228,9 +212,8 @@ function RegisterForm() {
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 className="w-full bg-transparent py-2 text-sm text-zinc-900 outline-none placeholder:text-zinc-400"
-                                disabled={isAnyPending}
                             />
-                            <button type="button" onClick={toggleVisibility} className="text-zinc-400 focus:outline-none" disabled={isAnyPending}>
+                            <button type="button" onClick={toggleVisibility} className="text-zinc-400 focus:outline-none">
                                 {isVisible ? <EyeOff size={16} /> : <Eye size={16} />}
                             </button>
                         </InputGroup>
@@ -240,9 +223,9 @@ function RegisterForm() {
                     <Button
                         type="submit"
                         className="w-full h-11 mt-2 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-amber-500 to-orange-600 shadow-md shadow-orange-950/10 hover:opacity-95 active:scale-[0.99] transition-all"
-                        isDisabled={isAnyPending}
+                        isDisabled={isLoading}
                     >
-                        {signupMutation.isPending ? "Registering..." : "Register"}
+                        {isLoading ? "Registering..." : "Register"}
                     </Button>
                     
                     {/* Divider */}
@@ -257,7 +240,7 @@ function RegisterForm() {
                         type="button"
                         onClick={handleGoogleSignup}
                         className="w-full h-11 rounded-xl font-medium text-sm text-zinc-700 bg-white border border-zinc-200 hover:bg-zinc-50 active:scale-[0.99] transition-all flex items-center justify-center gap-2 shadow-sm"
-                        isDisabled={isAnyPending}
+                        isDisabled={isLoading}
                     >
                         <FcGoogle size={20} />
                         Sign up with Google
@@ -266,8 +249,8 @@ function RegisterForm() {
                     {/* Login Link for existing users */}
                     <p className="text-center text-xs text-zinc-500 mt-2">
                         Already have an account?{" "}
-                        <Link 
-                            href={`/auth/login?callbackUrl=${encodeURIComponent(callbackUrl)}`} 
+                        <Link
+                            href={`/auth/login?callbackUrl=${encodeURIComponent(callbackUrl)}`}
                             className="text-amber-600 font-semibold hover:underline"
                         >
                             Log in
@@ -286,7 +269,7 @@ function RegisterForm() {
 export default function RegisterComponent() {
     return (
         <div className="min-h-screen flex items-center justify-center p-4 bg-[#F8FAFC]">
-            <Suspense 
+            <Suspense
                 fallback={
                     <div className="flex items-center justify-center">
                         <RefreshCw className="animate-spin text-amber-500" size={32} />
