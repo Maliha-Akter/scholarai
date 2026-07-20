@@ -20,7 +20,7 @@ export default function AddScholarshipPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    // Initial Form State
+    // Initial Form State - Changed 0 to "" so 'required' blocks empty inputs
     const [formData, setFormData] = useState({
         title: "",
         slug: "",
@@ -34,7 +34,7 @@ export default function AddScholarshipPage() {
         funding: {
             tuitionCoverage: "",
             accommodation: false,
-            monthlyStipend: 0,
+            monthlyStipend: "" as any, 
             travelAllowance: false,
             healthInsurance: false,
             visaSupport: false,
@@ -46,10 +46,10 @@ export default function AddScholarshipPage() {
         shortDescription: "",
         overview: "",
         eligibility: {
-            minimumCGPA: 0,
-            minimumIELTS: 0,
-            minimumTOEFL: 0,
-            ageLimit: 0,
+            minimumCGPA: "" as any,
+            minimumIELTS: "" as any,
+            minimumTOEFL: "" as any,
+            ageLimit: "" as any,
             nationality: "",
             acceptedDegrees: "",
             workExperience: "",
@@ -91,7 +91,7 @@ export default function AddScholarshipPage() {
             ...prev,
             [category]: {
                 ...prev[category],
-                [name]: type === "checkbox" ? checked : type === "number" ? Number(value) : value,
+                [name]: type === "checkbox" ? checked : type === "number" && value !== "" ? Number(value) : value,
             },
         }));
     };
@@ -113,10 +113,15 @@ export default function AddScholarshipPage() {
             tags: toArray(formData.tags),
             funding: {
                 ...formData.funding,
+                monthlyStipend: Number(formData.funding.monthlyStipend || 0),
                 otherBenefits: toArray(formData.funding.otherBenefits)
             },
             eligibility: {
                 ...formData.eligibility,
+                minimumCGPA: Number(formData.eligibility.minimumCGPA || 0),
+                minimumIELTS: Number(formData.eligibility.minimumIELTS || 0),
+                minimumTOEFL: Number(formData.eligibility.minimumTOEFL || 0),
+                ageLimit: Number(formData.eligibility.ageLimit || 0),
                 nationality: toArray(formData.eligibility.nationality),
                 acceptedDegrees: toArray(formData.eligibility.acceptedDegrees)
             }
@@ -162,14 +167,16 @@ export default function AddScholarshipPage() {
                 {/* Header */}
                 <div className="flex items-center justify-between mb-8">
                     <div>
-                        <button onClick={() => router.back()} className="flex items-center text-slate-500 hover:text-slate-900 mb-2 transition-colors">
+                        <button type="button" onClick={() => router.back()} className="flex items-center text-slate-500 hover:text-slate-900 mb-2 transition-colors">
                             <ArrowLeft className="w-4 h-4 mr-2" /> Back
                         </button>
                         <h1 className="text-3xl font-bold text-slate-900">Add New Scholarship</h1>
                         <p className="text-slate-500 mt-1">Fill in the details to publish a new scholarship opportunity.</p>
                     </div>
+                    {/* FIXED: Added type="submit" and form="scholarship-form" attributes */}
                     <button 
-                        onClick={handleSubmit}
+                        type="submit"
+                        form="scholarship-form"
                         disabled={isLoading}
                         className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors"
                     >
@@ -184,7 +191,8 @@ export default function AddScholarshipPage() {
                     </div>
                 )}
 
-                <form className="space-y-8" onSubmit={handleSubmit}>
+                {/* FIXED: Added id="scholarship-form" to connect with header button */}
+                <form id="scholarship-form" className="space-y-8" onSubmit={handleSubmit}>
                     
                     {/* SECTION 1: Basic Information */}
                     <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
@@ -199,7 +207,7 @@ export default function AddScholarshipPage() {
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-slate-700 mb-1">Generated Slug</label>
-                                <input required disabled type="text" value={formData.slug} className="w-full p-2.5 border rounded-lg bg-slate-50 text-slate-500" />
+                                <input disabled type="text" value={formData.slug} className="w-full p-2.5 border rounded-lg bg-slate-50 text-slate-500" />
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-slate-700 mb-1">Image URL *</label>
@@ -263,7 +271,7 @@ export default function AddScholarshipPage() {
                                 </select>
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">Monthly Stipend (Number) *</label>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Monthly Stipend *</label>
                                 <input required type="number" name="monthlyStipend" value={formData.funding.monthlyStipend} onChange={(e) => handleNestedChange("funding", e)} className="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" />
                             </div>
                             <div className="md:col-span-2">
@@ -273,19 +281,19 @@ export default function AddScholarshipPage() {
                             
                             <div className="md:col-span-2 grid grid-cols-2 sm:grid-cols-4 gap-4 mt-2">
                                 <label className="flex items-center gap-2 text-sm text-slate-700">
-                                    <input required type="checkbox" name="accommodation" checked={formData.funding.accommodation} onChange={(e) => handleNestedChange("funding", e)} className="w-4 h-4 rounded border-slate-300" />
+                                    <input type="checkbox" name="accommodation" checked={formData.funding.accommodation} onChange={(e) => handleNestedChange("funding", e)} className="w-4 h-4 rounded border-slate-300" />
                                     Accommodation
                                 </label>
                                 <label className="flex items-center gap-2 text-sm text-slate-700">
-                                    <input required type="checkbox" name="travelAllowance" checked={formData.funding.travelAllowance} onChange={(e) => handleNestedChange("funding", e)} className="w-4 h-4 rounded border-slate-300" />
+                                    <input type="checkbox" name="travelAllowance" checked={formData.funding.travelAllowance} onChange={(e) => handleNestedChange("funding", e)} className="w-4 h-4 rounded border-slate-300" />
                                     Travel Allowance
                                 </label>
                                 <label className="flex items-center gap-2 text-sm text-slate-700">
-                                    <input required type="checkbox" name="healthInsurance" checked={formData.funding.healthInsurance} onChange={(e) => handleNestedChange("funding", e)} className="w-4 h-4 rounded border-slate-300" />
+                                    <input type="checkbox" name="healthInsurance" checked={formData.funding.healthInsurance} onChange={(e) => handleNestedChange("funding", e)} className="w-4 h-4 rounded border-slate-300" />
                                     Health Insurance
                                 </label>
                                 <label className="flex items-center gap-2 text-sm text-slate-700">
-                                    <input required type="checkbox" name="visaSupport" checked={formData.funding.visaSupport} onChange={(e) => handleNestedChange("funding", e)} className="w-4 h-4 rounded border-slate-300" />
+                                    <input type="checkbox" name="visaSupport" checked={formData.funding.visaSupport} onChange={(e) => handleNestedChange("funding", e)} className="w-4 h-4 rounded border-slate-300" />
                                     Visa Support
                                 </label>
                             </div>
@@ -349,11 +357,11 @@ export default function AddScholarshipPage() {
                             </div>
                             
                             <div className="sm:col-span-2">
-                                <label className="block text-sm font-medium text-slate-700 mb-1">Accepted Nationalities (Comma separated) *</label>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Accepted Nationalities *</label>
                                 <input required type="text" name="nationality" value={formData.eligibility.nationality} onChange={(e) => handleNestedChange("eligibility", e)} className="w-full p-2.5 border rounded-lg outline-none" placeholder="Bangladesh, India, International" />
                             </div>
                             <div className="sm:col-span-2">
-                                <label className="block text-sm font-medium text-slate-700 mb-1">Accepted Degrees (Comma separated) *</label>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Accepted Degrees *</label>
                                 <input required type="text" name="acceptedDegrees" value={formData.eligibility.acceptedDegrees} onChange={(e) => handleNestedChange("eligibility", e)} className="w-full p-2.5 border rounded-lg outline-none" placeholder="BSc, BA, BEng" />
                             </div>
                         </div>
@@ -367,22 +375,22 @@ export default function AddScholarshipPage() {
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">Required Documents (Comma separated) *</label>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Required Documents *</label>
                                 <textarea required name="requiredDocuments" value={formData.requiredDocuments} onChange={handleChange} rows={3} className="w-full p-2.5 border rounded-lg outline-none resize-none" placeholder="Passport, Transcript, CV, Recommendation Letter" />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">Tags for SEO (Comma separated) *</label>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Tags for SEO *</label>
                                 <textarea required name="tags" value={formData.tags} onChange={handleChange} rows={3} className="w-full p-2.5 border rounded-lg outline-none resize-none" placeholder="AI, Engineering, Japan" />
                             </div>
                         </div>
                         
                         <div className="flex items-center gap-6 mt-6 pt-6 border-t">
                             <label className="flex items-center gap-2 text-slate-700 font-medium cursor-pointer">
-                                <input required type="checkbox" name="isFeatured" checked={formData.isFeatured} onChange={handleChange} className="w-5 h-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
+                                <input type="checkbox" name="isFeatured" checked={formData.isFeatured} onChange={handleChange} className="w-5 h-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
                                 Mark as Featured
                             </label>
                             <label className="flex items-center gap-2 text-slate-700 font-medium cursor-pointer">
-                                <input required type="checkbox" name="isActive" checked={formData.isActive} onChange={handleChange} className="w-5 h-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
+                                <input type="checkbox" name="isActive" checked={formData.isActive} onChange={handleChange} className="w-5 h-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
                                 Active (Visible)
                             </label>
                         </div>
