@@ -166,10 +166,13 @@ export default function AddScholarshipPage() {
                             <ArrowLeft className="w-4 h-4 mr-2" /> Back
                         </button>
                         <h1 className="text-3xl font-bold text-slate-900">Add New Scholarship</h1>
-                        <p className="text-slate-500 mt-1">Fill in the details to publish a new scholarship opportunity.</p>
+                        <p className="text-slate-500 mt-1">Fill in all details below to publish a new scholarship opportunity.</p>
                     </div>
+                    
+                    {/* Linked to form ID so browser validation triggers on click */}
                     <button 
-                        onClick={handleSubmit}
+                        type="submit"
+                        form="scholarship-form"
                         disabled={isLoading}
                         className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors"
                     >
@@ -184,7 +187,8 @@ export default function AddScholarshipPage() {
                     </div>
                 )}
 
-                <form className="space-y-8" onSubmit={handleSubmit}>
+                {/* Added ID to link with top button */}
+                <form id="scholarship-form" className="space-y-8" onSubmit={handleSubmit}>
                     
                     {/* SECTION 1: Basic Information */}
                     <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
@@ -202,16 +206,16 @@ export default function AddScholarshipPage() {
                                 <input disabled type="text" value={formData.slug} className="w-full p-2.5 border rounded-lg bg-slate-50 text-slate-500" />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">Image URL</label>
-                                <input type="url" name="image" value={formData.image} onChange={handleChange} className="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="https://..." />
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Image URL *</label>
+                                <input required type="url" name="image" value={formData.image} onChange={handleChange} className="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="https://..." />
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-slate-700 mb-1">University Name *</label>
                                 <input required type="text" name="universityName" value={formData.universityName} onChange={handleChange} className="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">Official Application URL</label>
-                                <input type="url" name="applicationUrl" value={formData.applicationUrl} onChange={handleChange} className="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" />
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Official Application URL *</label>
+                                <input required type="url" name="applicationUrl" value={formData.applicationUrl} onChange={handleChange} className="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="https://..." />
                             </div>
                         </div>
                     </div>
@@ -228,8 +232,8 @@ export default function AddScholarshipPage() {
                                 <input required type="text" name="country" value={formData.country} onChange={handleChange} className="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">City</label>
-                                <input type="text" name="city" value={formData.city} onChange={handleChange} className="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" />
+                                <label className="block text-sm font-medium text-slate-700 mb-1">City *</label>
+                                <input required type="text" name="city" value={formData.city} onChange={handleChange} className="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" />
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-slate-700 mb-1">Degree Level *</label>
@@ -263,12 +267,12 @@ export default function AddScholarshipPage() {
                                 </select>
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">Monthly Stipend (Number)</label>
-                                <input type="number" name="monthlyStipend" value={formData.funding.monthlyStipend} onChange={(e) => handleNestedChange("funding", e)} className="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" />
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Monthly Stipend (Number) *</label>
+                                <input required type="number" name="monthlyStipend" value={formData.funding.monthlyStipend} onChange={(e) => handleNestedChange("funding", e)} className="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" />
                             </div>
                             <div className="md:col-span-2">
-                                <label className="block text-sm font-medium text-slate-700 mb-1">Tuition Coverage Description</label>
-                                <input type="text" name="tuitionCoverage" value={formData.funding.tuitionCoverage} onChange={(e) => handleNestedChange("funding", e)} className="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="e.g., 100% Tuition fee waived for 4 years" />
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Tuition Coverage Description *</label>
+                                <input required type="text" name="tuitionCoverage" value={formData.funding.tuitionCoverage} onChange={(e) => handleNestedChange("funding", e)} className="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="e.g., 100% Tuition fee waived for 4 years" />
                             </div>
                             
                             <div className="md:col-span-2 grid grid-cols-2 sm:grid-cols-4 gap-4 mt-2">
@@ -300,16 +304,16 @@ export default function AddScholarshipPage() {
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">Application Open Date</label>
-                                <input type="date" name="applicationOpen" value={formData.applicationOpen} onChange={handleChange} className="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" />
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Application Open Date *</label>
+                                <input required type="date" name="applicationOpen" value={formData.applicationOpen} onChange={handleChange} className="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">Application Deadline</label>
-                                <input type="date" name="applicationDeadline" value={formData.applicationDeadline} onChange={handleChange} className="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" />
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Application Deadline *</label>
+                                <input required type="date" name="applicationDeadline" value={formData.applicationDeadline} onChange={handleChange} className="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">Intakes (Comma separated)</label>
-                                <input type="text" name="intake" value={formData.intake} onChange={handleChange} className="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Fall 2027, Spring 2027" />
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Intakes (Comma separated) *</label>
+                                <input required type="text" name="intake" value={formData.intake} onChange={handleChange} className="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Fall 2027, Spring 2027" />
                             </div>
                         </div>
                         <div className="space-y-4">
@@ -332,29 +336,29 @@ export default function AddScholarshipPage() {
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">Min CGPA</label>
-                                <input type="number" step="0.1" name="minimumCGPA" value={formData.eligibility.minimumCGPA} onChange={(e) => handleNestedChange("eligibility", e)} className="w-full p-2.5 border rounded-lg outline-none" />
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Min CGPA *</label>
+                                <input required type="number" step="0.1" name="minimumCGPA" value={formData.eligibility.minimumCGPA} onChange={(e) => handleNestedChange("eligibility", e)} className="w-full p-2.5 border rounded-lg outline-none" />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">Min IELTS</label>
-                                <input type="number" step="0.5" name="minimumIELTS" value={formData.eligibility.minimumIELTS} onChange={(e) => handleNestedChange("eligibility", e)} className="w-full p-2.5 border rounded-lg outline-none" />
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Min IELTS *</label>
+                                <input required type="number" step="0.5" name="minimumIELTS" value={formData.eligibility.minimumIELTS} onChange={(e) => handleNestedChange("eligibility", e)} className="w-full p-2.5 border rounded-lg outline-none" />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">Min TOEFL</label>
-                                <input type="number" name="minimumTOEFL" value={formData.eligibility.minimumTOEFL} onChange={(e) => handleNestedChange("eligibility", e)} className="w-full p-2.5 border rounded-lg outline-none" />
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Min TOEFL *</label>
+                                <input required type="number" name="minimumTOEFL" value={formData.eligibility.minimumTOEFL} onChange={(e) => handleNestedChange("eligibility", e)} className="w-full p-2.5 border rounded-lg outline-none" />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">Age Limit</label>
-                                <input type="number" name="ageLimit" value={formData.eligibility.ageLimit} onChange={(e) => handleNestedChange("eligibility", e)} className="w-full p-2.5 border rounded-lg outline-none" />
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Age Limit *</label>
+                                <input required type="number" name="ageLimit" value={formData.eligibility.ageLimit} onChange={(e) => handleNestedChange("eligibility", e)} className="w-full p-2.5 border rounded-lg outline-none" />
                             </div>
                             
                             <div className="sm:col-span-2">
-                                <label className="block text-sm font-medium text-slate-700 mb-1">Accepted Nationalities (Comma separated)</label>
-                                <input type="text" name="nationality" value={formData.eligibility.nationality} onChange={(e) => handleNestedChange("eligibility", e)} className="w-full p-2.5 border rounded-lg outline-none" placeholder="Bangladesh, India, International" />
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Accepted Nationalities (Comma separated) *</label>
+                                <input required type="text" name="nationality" value={formData.eligibility.nationality} onChange={(e) => handleNestedChange("eligibility", e)} className="w-full p-2.5 border rounded-lg outline-none" placeholder="Bangladesh, India, International" />
                             </div>
                             <div className="sm:col-span-2">
-                                <label className="block text-sm font-medium text-slate-700 mb-1">Accepted Degrees (Comma separated)</label>
-                                <input type="text" name="acceptedDegrees" value={formData.eligibility.acceptedDegrees} onChange={(e) => handleNestedChange("eligibility", e)} className="w-full p-2.5 border rounded-lg outline-none" placeholder="BSc, BA, BEng" />
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Accepted Degrees (Comma separated) *</label>
+                                <input required type="text" name="acceptedDegrees" value={formData.eligibility.acceptedDegrees} onChange={(e) => handleNestedChange("eligibility", e)} className="w-full p-2.5 border rounded-lg outline-none" placeholder="BSc, BA, BEng" />
                             </div>
                         </div>
                     </div>
@@ -367,12 +371,12 @@ export default function AddScholarshipPage() {
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">Required Documents (Comma separated)</label>
-                                <textarea name="requiredDocuments" value={formData.requiredDocuments} onChange={handleChange} rows={3} className="w-full p-2.5 border rounded-lg outline-none resize-none" placeholder="Passport, Transcript, CV, Recommendation Letter" />
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Required Documents (Comma separated) *</label>
+                                <textarea required name="requiredDocuments" value={formData.requiredDocuments} onChange={handleChange} rows={3} className="w-full p-2.5 border rounded-lg outline-none resize-none" placeholder="Passport, Transcript, CV, Recommendation Letter" />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">Tags for SEO (Comma separated)</label>
-                                <textarea name="tags" value={formData.tags} onChange={handleChange} rows={3} className="w-full p-2.5 border rounded-lg outline-none resize-none" placeholder="AI, Engineering, Japan" />
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Tags for SEO (Comma separated) *</label>
+                                <textarea required name="tags" value={formData.tags} onChange={handleChange} rows={3} className="w-full p-2.5 border rounded-lg outline-none resize-none" placeholder="AI, Engineering, Japan" />
                             </div>
                         </div>
                         
