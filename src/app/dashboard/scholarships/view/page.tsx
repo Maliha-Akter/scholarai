@@ -14,6 +14,7 @@ import {
     ChevronRight,
     ArrowRight
 } from "lucide-react";
+import { authClient } from "@/app/lib/auth-client";
 
 // Types based on your backend projection
 interface Scholarship {
@@ -64,46 +65,60 @@ export default function ScholarshipsPage() {
 
     // Fetch Data
     const fetchScholarships = useCallback(async () => {
-    console.log("fetchScholarships called");
-
-    setIsLoading(true);
-    setError(null);
-
-    try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
-
-        const queryParams = new URLSearchParams({
-            page: filters.page.toString(),
-            limit: "9",
-            sort: filters.sort,
-        });
-
-        if (filters.search) queryParams.append("search", filters.search);
-        if (filters.country) queryParams.append("country", filters.country);
-        if (filters.degree) queryParams.append("degree", filters.degree);
-        if (filters.fundingType) queryParams.append("fundingType", filters.fundingType);
-
-        console.log(`${apiUrl}/scholarships?${queryParams}`);
-
-        const response = await fetch(
-            `${apiUrl}/scholarships?${queryParams.toString()}`
-        );
-
-        console.log(response.status);
-
-        const data = await response.json();
-
-        console.log(data);
-
-        setScholarships(data.scholarships);
-        setTotalPages(data.totalPages);
-
-    } catch (err) {
-        console.log(err);
-    } finally {
-        setIsLoading(false);
-    }
-}, [filters]);
+        console.log("fetchScholarships called");
+    
+        setIsLoading(true);
+        setError(null);
+    
+        try {
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+    
+            const queryParams = new URLSearchParams({
+                page: filters.page.toString(),
+                limit: "9",
+                sort: filters.sort,
+            });
+    
+            if (filters.search) queryParams.append("search", filters.search);
+            if (filters.country) queryParams.append("country", filters.country);
+            if (filters.degree) queryParams.append("degree", filters.degree);
+            if (filters.fundingType) queryParams.append("fundingType", filters.fundingType);
+    
+            console.log(`${apiUrl}/scholarships?${queryParams}`);
+    
+            // 1. Fetch the token (assuming you imported authClient)
+            const tokenResponse = await authClient.token();
+            const token = tokenResponse?.data?.token;
+    
+            // 2. Attach the token to the fetch request
+            const response = await fetch(
+                `${apiUrl}/scholarships?${queryParams.toString()}`,
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}` // Ensure this is sent!
+                    }
+                }
+            );
+    
+            console.log(response.status);
+    
+            const data = await response.json();
+            console.log(data);
+    
+            // 3. Use the safe fallback to prevent crashes!
+            setScholarships(data.scholarships || []);
+            setTotalPages(data.totalPages || 1);
+    
+        } catch (err) {
+            console.log(err);
+            // Ensure state is safe even if the network completely fails
+            setScholarships([]); 
+            setError("Failed to fetch scholarships");
+        } finally {
+            setIsLoading(false);
+        }
+    }, [filters]);
 
     // Re-fetch when page, sort, or direct selects change
     useEffect(() => {

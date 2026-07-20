@@ -351,32 +351,101 @@ export default function ScholarshipDetailsPage() {
         }
     };
 
-    const handleReviewSubmit = async (e: React.FormEvent) => {
+    interface ReviewStatusResponse {
+        hasReviewed: boolean;
+    }
+    const [hasReviewed, setHasReviewed] = useState<boolean>(false);
+
+    // Inside your main React Component:
+    useEffect(() => {
+        const checkInitialReviewStatus = async (): Promise<void> => {
+            if (!data?.scholarship?._id) return;
+
+            const tokenResponse = await authClient.token();
+            const token: string | undefined = tokenResponse?.data?.token;
+
+            // If guest user, bypass check entirely
+            if (!token) return;
+
+            try {
+                const response = await fetch(`${API_URL}/reviews/status/${data.scholarship._id}`, {
+                    method: "GET",
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                        "Content-Type": "application/json"
+                    }
+                });
+
+                if (response.ok) {
+                    const result: ReviewStatusResponse = await response.json();
+                    // Update your React state tracker (e.g., setHasReviewed)
+                    setHasReviewed(result.hasReviewed);
+                }
+            } catch (error) {
+                console.error("Failed to fetch initial review status:", error);
+            }
+        };
+
+        checkInitialReviewStatus();
+    }, [data?.scholarship?._id]);
+    const handleReviewSubmit = async (e: React.FormEvent): Promise<void> => {
         e.preventDefault();
-        if (!reviewText.trim() || !data.scholarship?._id) return;
+
+        // 1. Fetch active user token securely via auth client
+        const tokenResponse = await authClient.token();
+        const token: string | undefined = tokenResponse?.data?.token;
+
+        if (!token) {
+            toast.error("Please log in to submit a review.");
+            return;
+        }
+
+        if (!reviewText.trim() || !data.scholarship?._id) {
+            toast.error("Review content cannot be empty.");
+            return;
+        }
 
         setIsSubmittingReview(true);
         try {
             const response = await fetch(`${API_URL}/reviews`, {
                 method: "POST",
-                headers: getAuthHeaders(),
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}` // Fixed: Direct verification token injection
+                },
                 body: JSON.stringify({
-                    scholarshipId: data.scholarship._id, // <-- FIX HERE
+                    scholarshipId: data.scholarship._id,
                     rating: reviewRating,
                     review: reviewText
                 })
             });
 
-            if (response.ok) {
-                setReviewText("");
-                setReviewRating(5);
-                await fetchDetails();
-            } else {
+            if (!response.ok) {
+                if (response.status === 401) throw new Error("Unauthorized");
+                if (response.status === 409) {
+                    toast.error("You have already reviewed this scholarship.");
+                    return;
+                }
                 throw new Error("Failed to submit review");
             }
+
+            // 2. Clear out input fields upon successful API persistence
+            setReviewText("");
+            setReviewRating(5);
+
+            toast.success("Review submitted successfully!");
+
+            // Re-fetch the page details to recalculate live score averages
+            await fetchDetails();
+
         } catch (error) {
             console.error("Error posting review:", error);
-            alert("Could not submit your review. Please try again later.");
+
+            if (error instanceof Error && error.message === "Unauthorized") {
+                toast.error("Your session has expired. Please log in again.");
+            } else {
+                toast.error("Could not submit your review. Please try again later.");
+            }
         } finally {
             setIsSubmittingReview(false);
         }
@@ -502,8 +571,8 @@ export default function ScholarshipDetailsPage() {
                                         }
                                     }}
                                     className={`flex-1 flex justify-center items-center gap-2 px-8 py-3.5 rounded-xl font-semibold transition-colors ${hasApplied
-                                            ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-200"
-                                            : "bg-blue-600 text-white hover:bg-blue-700"
+                                        ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-200"
+                                        : "bg-blue-600 text-white hover:bg-blue-700"
                                         }`}
                                 >
                                     {hasApplied ? (
@@ -517,8 +586,8 @@ export default function ScholarshipDetailsPage() {
                                     onClick={handleSave}
                                     disabled={isSaving}
                                     className={`flex-1 sm:flex-none flex justify-center items-center gap-2 px-8 py-3.5 rounded-xl font-semibold border transition-all ${isSaved
-                                            ? "bg-slate-900 text-white border-slate-900"
-                                            : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50"
+                                        ? "bg-slate-900 text-white border-slate-900"
+                                        : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50"
                                         }`}
                                 >
                                     <Bookmark className={`w-5 h-5 ${isSaved ? "fill-current" : ""}`} />
@@ -596,36 +665,47 @@ export default function ScholarshipDetailsPage() {
                             {/* Write a Review Box */}
                             <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm mb-6">
                                 <h3 className="font-bold text-slate-900 mb-4">Leave a review</h3>
-                                <form onSubmit={handleReviewSubmit}>
-                                    <div className="flex items-center mb-4 gap-1">
-                                        {[1, 2, 3, 4, 5].map((star) => (
+
+                                {hasReviewed ? (
+                                    // What shows up if they have already left a review
+                                    <div className="p-4 bg-slate-50 border border-slate-200 text-slate-600 rounded-xl text-center font-medium">
+                                        Thank you! You have already submitted a review for this scholarship.
+                                    </div>
+                                ) : (
+                                    // The original form structure if they haven't reviewed it yet
+                                    <form onSubmit={handleReviewSubmit}>
+                                        <div className="flex items-center mb-4 gap-1">
+                                            {[1, 2, 3, 4, 5].map((star) => (
+                                                <button
+                                                    key={star}
+                                                    type="button"
+                                                    onClick={() => setReviewRating(star)}
+                                                    className="focus:outline-none transition-colors"
+                                                >
+                                                    <Star className={`w-6 h-6 ${reviewRating >= star ? "text-yellow-500 fill-yellow-500" : "text-slate-300"}`} />
+                                                </button>
+                                            ))}
+                                        </div>
+
+                                        <textarea
+                                            rows={3}
+                                            className="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-3 resize-none"
+                                            placeholder="Share your experience or thoughts on this scholarship..."
+                                            value={reviewText}
+                                            onChange={(e) => setReviewText(e.target.value)}
+                                        ></textarea>
+
+                                        <div className="flex justify-end">
                                             <button
-                                                key={star}
-                                                type="button"
-                                                onClick={() => setReviewRating(star)}
-                                                className="focus:outline-none transition-colors"
+                                                type="submit"
+                                                disabled={isSubmittingReview || !reviewText.trim()}
+                                                className="flex items-center gap-2 bg-slate-900 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-slate-800 disabled:opacity-50 transition-colors"
                                             >
-                                                <Star className={`w-6 h-6 ${reviewRating >= star ? "text-yellow-500 fill-yellow-500" : "text-slate-300"}`} />
+                                                <Send className="w-4 h-4" /> {isSubmittingReview ? "Submitting..." : "Submit Review"}
                                             </button>
-                                        ))}
-                                    </div>
-                                    <textarea
-                                        rows={3}
-                                        className="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-3 resize-none"
-                                        placeholder="Share your experience or thoughts on this scholarship..."
-                                        value={reviewText}
-                                        onChange={(e) => setReviewText(e.target.value)}
-                                    ></textarea>
-                                    <div className="flex justify-end">
-                                        <button
-                                            type="submit"
-                                            disabled={isSubmittingReview || !reviewText.trim()}
-                                            className="flex items-center gap-2 bg-slate-900 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-slate-800 disabled:opacity-50 transition-colors"
-                                        >
-                                            <Send className="w-4 h-4" /> {isSubmittingReview ? "Submitting..." : "Submit Review"}
-                                        </button>
-                                    </div>
-                                </form>
+                                        </div>
+                                    </form>
+                                )}
                             </div>
 
                             {/* Review List */}

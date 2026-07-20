@@ -1,4 +1,5 @@
 // import Footer from "@/components/Footer";
+import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import { ReactNode } from "react";
 
@@ -11,7 +12,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
     <div>
       <Navbar />
       <div className="grow flex flex-col">{children}</div>
-      {/* <Footer /> */}
+      <Footer />
     </div>
   );
 }

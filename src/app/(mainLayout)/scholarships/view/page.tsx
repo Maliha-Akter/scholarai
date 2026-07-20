@@ -2,18 +2,19 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import {
-    Search,
-    MapPin,
-    Calendar,
-    GraduationCap,
-    Banknote,
-    Star,
+import { 
+    Search, 
+    MapPin, 
+    Calendar, 
+    GraduationCap, 
+    Banknote, 
+    Star, 
     Filter,
     ChevronLeft,
     ChevronRight,
     ArrowRight
 } from "lucide-react";
+import { authClient } from "@/app/lib/auth-client";
 
 // Types based on your backend projection
 interface Scholarship {
@@ -65,41 +66,55 @@ export default function ScholarshipsPage() {
     // Fetch Data
     const fetchScholarships = useCallback(async () => {
         console.log("fetchScholarships called");
-
+    
         setIsLoading(true);
         setError(null);
-
+    
         try {
             const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
-
+    
             const queryParams = new URLSearchParams({
                 page: filters.page.toString(),
                 limit: "9",
                 sort: filters.sort,
             });
-
+    
             if (filters.search) queryParams.append("search", filters.search);
             if (filters.country) queryParams.append("country", filters.country);
             if (filters.degree) queryParams.append("degree", filters.degree);
             if (filters.fundingType) queryParams.append("fundingType", filters.fundingType);
-
+    
             console.log(`${apiUrl}/scholarships?${queryParams}`);
-
+    
+            // 1. Fetch the token (assuming you imported authClient)
+            const tokenResponse = await authClient.token();
+            const token = tokenResponse?.data?.token;
+    
+            // 2. Attach the token to the fetch request
             const response = await fetch(
-                `${apiUrl}/scholarships?${queryParams.toString()}`
+                `${apiUrl}/scholarships?${queryParams.toString()}`,
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}` // Ensure this is sent!
+                    }
+                }
             );
-
+    
             console.log(response.status);
-
+    
             const data = await response.json();
-
             console.log(data);
-
-            setScholarships(data.scholarships);
-            setTotalPages(data.totalPages);
-
+    
+            // 3. Use the safe fallback to prevent crashes!
+            setScholarships(data.scholarships || []);
+            setTotalPages(data.totalPages || 1);
+    
         } catch (err) {
             console.log(err);
+            // Ensure state is safe even if the network completely fails
+            setScholarships([]); 
+            setError("Failed to fetch scholarships");
         } finally {
             setIsLoading(false);
         }
@@ -116,7 +131,7 @@ export default function ScholarshipsPage() {
     return (
         <div className="min-h-screen bg-slate-50 py-12 px-4 sm:px-6 lg:px-8">
             <div className="max-w-7xl mx-auto">
-
+                
                 {/* Header */}
                 <div className="mb-8">
                     <h1 className="text-4xl font-bold text-slate-900">Browse Scholarships</h1>
@@ -126,11 +141,11 @@ export default function ScholarshipsPage() {
                 {/* Top Controls: Search, Filters, Sorting */}
                 <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-200 mb-8">
                     <div className="flex flex-col md:flex-row gap-4 justify-between items-center">
-
+                        
                         {/* Search Bar */}
                         <form onSubmit={handleSearchSubmit} className="w-full md:w-1/3 relative">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                            <input
+                            <input 
                                 type="text"
                                 name="search"
                                 value={filters.search}
@@ -155,7 +170,7 @@ export default function ScholarshipsPage() {
                                 <option value="Partial Funded">Partial Funded</option>
                                 <option value="Tuition Waiver">Tuition Waiver</option>
                             </select>
-
+                            
                             {/* Example Country Filter - Ideally populated dynamically from DB */}
                             <select name="country" value={filters.country} onChange={handleFilterChange} className="p-2.5 border rounded-lg bg-white outline-none focus:ring-2 focus:ring-blue-500 text-sm">
                                 <option value="">All Countries</option>
@@ -213,7 +228,7 @@ export default function ScholarshipsPage() {
                         <Filter className="w-12 h-12 text-slate-300 mx-auto mb-4" />
                         <h3 className="text-xl font-semibold text-slate-900">No scholarships found</h3>
                         <p className="text-slate-500 mt-2">Try adjusting your search or filters to find what you're looking for.</p>
-                        <button
+                        <button 
                             onClick={() => setFilters({ search: "", country: "", degree: "", fundingType: "", sort: "createdAt", page: 1 })}
                             className="mt-6 text-blue-600 hover:text-blue-700 font-medium"
                         >
@@ -227,13 +242,13 @@ export default function ScholarshipsPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                         {scholarships.map((scholarship) => (
                             <div key={scholarship._id} className="bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col overflow-hidden hover:shadow-lg transition-shadow duration-300">
-
+                                
                                 {/* Card Image */}
                                 <div className="relative h-48 bg-slate-100 flex-shrink-0 overflow-hidden">
                                     {scholarship.image ? (
-                                        <img
-                                            src={scholarship.image}
-                                            alt={scholarship.title}
+                                        <img 
+                                            src={scholarship.image} 
+                                            alt={scholarship.title} 
                                             className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
                                         />
                                     ) : (
@@ -277,8 +292,8 @@ export default function ScholarshipsPage() {
                                     </div>
 
                                     {/* Action Button */}
-                                    <Link
-                                        href={`/scholarships/view/${scholarship._id}`}
+                                    <Link 
+                                        href={`/dashboard/scholarships/view/${scholarship._id}`}
                                         className="w-full flex items-center justify-center py-2.5 px-4 bg-slate-50 hover:bg-blue-600 text-slate-700 hover:text-white border border-slate-200 hover:border-blue-600 rounded-lg transition-colors font-medium text-sm group"
                                     >
                                         View Details
@@ -293,30 +308,31 @@ export default function ScholarshipsPage() {
                 {/* Pagination */}
                 {!isLoading && totalPages > 1 && (
                     <div className="flex items-center justify-center gap-2 mt-12">
-                        <button
+                        <button 
                             disabled={filters.page === 1}
                             onClick={() => setFilters(prev => ({ ...prev, page: prev.page - 1 }))}
                             className="p-2 border rounded-lg bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             <ChevronLeft className="w-5 h-5" />
                         </button>
-
+                        
                         <div className="flex items-center gap-1">
                             {[...Array(totalPages)].map((_, i) => (
                                 <button
                                     key={i}
                                     onClick={() => setFilters(prev => ({ ...prev, page: i + 1 }))}
-                                    className={`w-10 h-10 rounded-lg text-sm font-medium transition-colors ${filters.page === i + 1
-                                            ? "bg-blue-600 text-white"
+                                    className={`w-10 h-10 rounded-lg text-sm font-medium transition-colors ${
+                                        filters.page === i + 1 
+                                            ? "bg-blue-600 text-white" 
                                             : "bg-white text-slate-600 border hover:bg-slate-50"
-                                        }`}
+                                    }`}
                                 >
                                     {i + 1}
                                 </button>
                             ))}
                         </div>
 
-                        <button
+                        <button 
                             disabled={filters.page === totalPages}
                             onClick={() => setFilters(prev => ({ ...prev, page: prev.page + 1 }))}
                             className="p-2 border rounded-lg bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"

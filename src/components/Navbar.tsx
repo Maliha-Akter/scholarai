@@ -50,7 +50,9 @@ export default function Navbar() {
     const loggedOutLinks: NavLink[] = [
         { label: 'Scholarships', href: '/scholarships/view', icon: <BookOpen className="w-4 h-4 mr-1.5" /> },
         { label: 'Universities', href: '/universities', icon: <Building2 className="w-4 h-4 mr-1.5" /> },
-        { label: 'Blog', href: '/blog', icon: <MessageSquare className="w-4 h-4 mr-1.5" /> },
+        // { label: 'Help & Support', href: '/help', icon: <MessageSquare className="w-4 h-4 mr-1.5" /> },
+        { label: 'About Us', href: '/about', icon: <Sparkles className="w-4 h-4 mr-1.5" /> },
+        // { label: 'Contact', href: '/contact', icon: <Sparkles className="w-4 h-4 mr-1.5" /> },
     ];
 
     const loggedInLinks: NavLink[] = [
@@ -69,6 +71,12 @@ export default function Navbar() {
             href: '/ai-assistant',
             icon: <Sparkles className="w-4 h-4 mr-1.5" />
         },
+        {
+            label: 'AI Scholarship Recommender',
+            href: '/ai-recommender',
+            icon: <Sparkles className="w-4 h-4 mr-1.5" />
+        },
+        
     ];
 
     const activeLinks = isLoggedIn ? loggedInLinks : loggedOutLinks;

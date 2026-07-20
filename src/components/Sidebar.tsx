@@ -47,12 +47,12 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         },
         { 
             label: 'Saved Scholarships', 
-            href: '/dashboard/saved', 
+            href: '/dashboard/scholarships/saved', 
             icon: <Bookmark className="w-5 h-5" /> 
         },
         { 
             label: 'Application History', 
-            href: '/dashboard/history', 
+            href: '/dashboard/scholarships/application', 
             icon: <History className="w-5 h-5" /> 
         },
         { 
@@ -66,15 +66,11 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
             icon: <FilePlus className="w-5 h-5" /> 
         },
         { 
-            label: 'Manage Documents', 
-            href: '/dashboard/documents', 
+            label: 'Manage Scholarships', 
+            href: '/dashboard/scholarships/manage', 
             icon: <Files className="w-5 h-5" /> 
         },
-        { 
-            label: 'Settings', 
-            href: '/dashboard/settings', 
-            icon: <Settings className="w-5 h-5" /> 
-        },
+        
     ];
 
     const handleLogout = async () => {
