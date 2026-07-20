@@ -8,6 +8,9 @@ interface FilterOptions {
   fundingTypes: string[];
 }
 
+// Added: Local storage key for tracking search behavior over time
+const HISTORY_STORAGE_KEY = "ai_scholarship_user_history";
+
 export default function SmartRecommendationPage() {
   const [loading, setLoading] = useState(false);
   const [filterLoading, setFilterLoading] = useState(true);
@@ -37,11 +40,12 @@ export default function SmartRecommendationPage() {
         if (!res.ok) throw new Error("Network response was not ok");
         const data = await res.json();
         
+        // Upgraded: Strict array type checks to prevent silent map() crashes if MongoDB returns null or undefined
         setOptions({
-          countries: data.countries || [],
-          degrees: data.degrees || [],
-          subjects: data.subjects || [],
-          fundingTypes: data.fundingTypes || []
+          countries: Array.isArray(data.countries) ? data.countries : [],
+          degrees: Array.isArray(data.degrees) ? data.degrees : [],
+          subjects: Array.isArray(data.subjects) ? data.subjects : [],
+          fundingTypes: Array.isArray(data.fundingTypes) ? data.fundingTypes : []
         });
       } catch (err) {
         console.error("Failed to fetch operational database filters:", err);
@@ -52,21 +56,55 @@ export default function SmartRecommendationPage() {
     fetchFilters();
   }, []);
 
+  // Added: Logs the last 10 unique searches to localStorage for smarter AI context
+  const trackUserBehavior = (currentSearch: typeof formData) => {
+    const hasCriteria = Object.values(currentSearch).some(val => val !== "");
+    if (!hasCriteria) return;
+
+    try {
+      const savedHistory = localStorage.getItem(HISTORY_STORAGE_KEY);
+      const history = savedHistory ? JSON.parse(savedHistory) : [];
+
+      const updatedHistory = [
+        { ...currentSearch, timestamp: new Date().toISOString() },
+        ...history
+      ].slice(0, 10);
+
+      localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(updatedHistory));
+    } catch (error) {
+      console.warn("Storage quota hit, resetting interaction window:", error);
+      localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify([currentSearch]));
+    }
+  };
+
   const getRecommendations = async () => {
     setLoading(true);
     setRecommendations("");
     try {
       const token = localStorage.getItem("token");
+      
+      // Upgraded: Pull historical searches to bundle into the recommendation payload
+      const savedHistory = localStorage.getItem(HISTORY_STORAGE_KEY);
+      const interactionHistory = savedHistory ? JSON.parse(savedHistory) : [];
+
+      const payload = {
+        ...formData,
+        interactionHistory
+      };
+
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/ai/recommend`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           ...(token && { "Authorization": `Bearer ${token}` })
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
       const data = await res.json();
       setRecommendations(data.recommendations || "No recommendations generated.");
+
+      // Record this interaction in localStorage upon successful generation
+      trackUserBehavior(formData);
     } catch (err) {
       console.error(err);
       setRecommendations("⚠️ Error connecting to Advisor Engine. Verify backend status.");

@@ -51,7 +51,7 @@ export default function Navbar() {
     const loggedOutLinks: NavLink[] = [
         { label: 'Scholarships', href: '/scholarships/view', icon: <BookOpen className="w-4 h-4 mr-1.5" /> },
         { label: 'Universities', href: '/universities', icon: <Building2 className="w-4 h-4 mr-1.5" /> },
-        // { label: 'Help & Support', href: '/help', icon: <MessageSquare className="w-4 h-4 mr-1.5" /> },
+        { label: 'Help & Support', href: '/help', icon: <MessageSquare className="w-4 h-4 mr-1.5" /> },
         { label: 'About Us', href: '/about', icon: <Sparkles className="w-4 h-4 mr-1.5" /> },
         { label: 'Contact', href: '/contact', icon: <Sparkles className="w-4 h-4 mr-1.5" /> },
     ];
@@ -227,6 +227,13 @@ export default function Navbar() {
                                                 className="flex items-center px-4 py-2 text-sm text-slate-700 hover:bg-blue-50 hover:text-[#1D4ED8] font-medium transition-colors"
                                             >
                                                 <Sparkles className="w-4 h-4 mr-2.5 text-slate-400" /> AI Assistant
+                                            </Link>
+                                            <Link
+                                                href="/ai-recommender"
+                                                onClick={() => setIsProfileDropdownOpen(false)}
+                                                className="flex items-center px-4 py-2 text-sm text-slate-700 hover:bg-blue-50 hover:text-[#1D4ED8] font-medium transition-colors"
+                                            >
+                                                <Sparkles className="w-4 h-4 mr-2.5 text-slate-400" /> AI Recommended Scholarships Engine
                                             </Link>
                                             <Link
                                                 href="/dashboard/scholarships/manage"
