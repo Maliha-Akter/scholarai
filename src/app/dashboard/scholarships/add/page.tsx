@@ -166,13 +166,10 @@ export default function AddScholarshipPage() {
                             <ArrowLeft className="w-4 h-4 mr-2" /> Back
                         </button>
                         <h1 className="text-3xl font-bold text-slate-900">Add New Scholarship</h1>
-                        <p className="text-slate-500 mt-1">Fill in all details below to publish a new scholarship opportunity.</p>
+                        <p className="text-slate-500 mt-1">Fill in the details to publish a new scholarship opportunity.</p>
                     </div>
-                    
-                    {/* Linked to form ID so browser validation triggers on click */}
                     <button 
-                        type="submit"
-                        form="scholarship-form"
+                        onClick={handleSubmit}
                         disabled={isLoading}
                         className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors"
                     >
@@ -187,8 +184,7 @@ export default function AddScholarshipPage() {
                     </div>
                 )}
 
-                {/* Added ID to link with top button */}
-                <form id="scholarship-form" className="space-y-8" onSubmit={handleSubmit}>
+                <form className="space-y-8" onSubmit={handleSubmit}>
                     
                     {/* SECTION 1: Basic Information */}
                     <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
@@ -203,7 +199,7 @@ export default function AddScholarshipPage() {
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-slate-700 mb-1">Generated Slug</label>
-                                <input disabled type="text" value={formData.slug} className="w-full p-2.5 border rounded-lg bg-slate-50 text-slate-500" />
+                                <input required disabled type="text" value={formData.slug} className="w-full p-2.5 border rounded-lg bg-slate-50 text-slate-500" />
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-slate-700 mb-1">Image URL *</label>
@@ -215,7 +211,7 @@ export default function AddScholarshipPage() {
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-slate-700 mb-1">Official Application URL *</label>
-                                <input required type="url" name="applicationUrl" value={formData.applicationUrl} onChange={handleChange} className="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="https://..." />
+                                <input required type="url" name="applicationUrl" value={formData.applicationUrl} onChange={handleChange} className="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" />
                             </div>
                         </div>
                     </div>
@@ -277,19 +273,19 @@ export default function AddScholarshipPage() {
                             
                             <div className="md:col-span-2 grid grid-cols-2 sm:grid-cols-4 gap-4 mt-2">
                                 <label className="flex items-center gap-2 text-sm text-slate-700">
-                                    <input type="checkbox" name="accommodation" checked={formData.funding.accommodation} onChange={(e) => handleNestedChange("funding", e)} className="w-4 h-4 rounded border-slate-300" />
+                                    <input required type="checkbox" name="accommodation" checked={formData.funding.accommodation} onChange={(e) => handleNestedChange("funding", e)} className="w-4 h-4 rounded border-slate-300" />
                                     Accommodation
                                 </label>
                                 <label className="flex items-center gap-2 text-sm text-slate-700">
-                                    <input type="checkbox" name="travelAllowance" checked={formData.funding.travelAllowance} onChange={(e) => handleNestedChange("funding", e)} className="w-4 h-4 rounded border-slate-300" />
+                                    <input required type="checkbox" name="travelAllowance" checked={formData.funding.travelAllowance} onChange={(e) => handleNestedChange("funding", e)} className="w-4 h-4 rounded border-slate-300" />
                                     Travel Allowance
                                 </label>
                                 <label className="flex items-center gap-2 text-sm text-slate-700">
-                                    <input type="checkbox" name="healthInsurance" checked={formData.funding.healthInsurance} onChange={(e) => handleNestedChange("funding", e)} className="w-4 h-4 rounded border-slate-300" />
+                                    <input required type="checkbox" name="healthInsurance" checked={formData.funding.healthInsurance} onChange={(e) => handleNestedChange("funding", e)} className="w-4 h-4 rounded border-slate-300" />
                                     Health Insurance
                                 </label>
                                 <label className="flex items-center gap-2 text-sm text-slate-700">
-                                    <input type="checkbox" name="visaSupport" checked={formData.funding.visaSupport} onChange={(e) => handleNestedChange("funding", e)} className="w-4 h-4 rounded border-slate-300" />
+                                    <input required type="checkbox" name="visaSupport" checked={formData.funding.visaSupport} onChange={(e) => handleNestedChange("funding", e)} className="w-4 h-4 rounded border-slate-300" />
                                     Visa Support
                                 </label>
                             </div>
@@ -382,11 +378,11 @@ export default function AddScholarshipPage() {
                         
                         <div className="flex items-center gap-6 mt-6 pt-6 border-t">
                             <label className="flex items-center gap-2 text-slate-700 font-medium cursor-pointer">
-                                <input type="checkbox" name="isFeatured" checked={formData.isFeatured} onChange={handleChange} className="w-5 h-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
+                                <input required type="checkbox" name="isFeatured" checked={formData.isFeatured} onChange={handleChange} className="w-5 h-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
                                 Mark as Featured
                             </label>
                             <label className="flex items-center gap-2 text-slate-700 font-medium cursor-pointer">
-                                <input type="checkbox" name="isActive" checked={formData.isActive} onChange={handleChange} className="w-5 h-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
+                                <input required type="checkbox" name="isActive" checked={formData.isActive} onChange={handleChange} className="w-5 h-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
                                 Active (Visible)
                             </label>
                         </div>
