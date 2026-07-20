@@ -53,7 +53,7 @@ export default function Navbar() {
         { label: 'Universities', href: '/universities', icon: <Building2 className="w-4 h-4 mr-1.5" /> },
         // { label: 'Help & Support', href: '/help', icon: <MessageSquare className="w-4 h-4 mr-1.5" /> },
         { label: 'About Us', href: '/about', icon: <Sparkles className="w-4 h-4 mr-1.5" /> },
-        // { label: 'Contact', href: '/contact', icon: <Sparkles className="w-4 h-4 mr-1.5" /> },
+        { label: 'Contact', href: '/contact', icon: <Sparkles className="w-4 h-4 mr-1.5" /> },
     ];
 
     const loggedInLinks: NavLink[] = [
@@ -72,21 +72,21 @@ export default function Navbar() {
             href: '/ai-assistant',
             icon: <Sparkles className="w-4 h-4 mr-1.5" />
         },
-        // {
-        //     label: 'AI Scholarship Recommender',
-        //     href: '/ai-recommender',
-        //     icon: <Sparkles className="w-4 h-4 mr-1.5" />
-        // },
+        {
+            label: 'AI Scholarship Recommender',
+            href: '/ai-recommender',
+            icon: <Sparkles className="w-4 h-4 mr-1.5" />
+        },
         {
             label: 'Profile',
             href: '/profile',
             icon: <UserIcon className="w-4 h-4 mr-1.5" />
         },
-        {
-            label: 'About Us',
-            href: '/about',
-            icon: <Sparkles className="w-4 h-4 mr-1.5" />
-        }
+        // {
+        //     label: 'About Us',
+        //     href: '/about',
+        //     icon: <Sparkles className="w-4 h-4 mr-1.5" />
+        // }
 
     ];
 
