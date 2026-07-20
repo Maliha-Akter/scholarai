@@ -36,7 +36,7 @@ export default function CallToAction() {
             
             {/* Primary CTA: Explore Scholarships */}
             <Link
-              href="/scholarships"
+              href="/scholarships/view"
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-4 bg-white text-blue-700 hover:bg-slate-100 rounded-2xl font-extrabold text-sm shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5"
             >
               <Rocket className="w-4 h-4 text-blue-600" />
@@ -45,7 +45,7 @@ export default function CallToAction() {
 
             {/* Secondary CTA: Try AI Advisor */}
             <Link
-              href="/smart-recommendation"
+              href="/ai-recommender"
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-4 bg-blue-900/40 hover:bg-blue-900/60 text-white rounded-2xl font-extrabold text-sm border border-white/20 backdrop-blur-md transition-all duration-300 transform hover:-translate-y-0.5 shadow-sm"
             >
               <Bot className="w-4 h-4 text-amber-300" />

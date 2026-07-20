@@ -208,7 +208,7 @@ export default function TopScholarships() {
                     {/* Action Button */}
                     <div className="pt-2">
                       <Link
-                        href={`/scholarships/${item._id}`}
+                        href={`/scholarships/view/${item._id}`}
                         className="w-full block py-2.5 px-4 bg-slate-50 group-hover:bg-blue-600 text-slate-700 group-hover:text-white rounded-xl text-xs font-bold transition-all text-center border border-slate-200/80 group-hover:border-blue-600 shadow-2xs"
                       >
                         View Scholarship Details

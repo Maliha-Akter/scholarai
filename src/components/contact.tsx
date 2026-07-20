@@ -27,7 +27,7 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-[#0F172A] selection:bg-[#1D4ED8] selection:text-white pb-20">
+    <div className="min-h-screen container mx-auto bg-[#F8FAFC] text-[#0F172A] selection:bg-[#1D4ED8] selection:text-white pb-20">
       
       {/* HERO SECTION */}
       <section className="pt-20 pb-12 px-4 text-center max-w-3xl mx-auto">

@@ -18,7 +18,7 @@ export default function Home() {
       <OurServices></OurServices>
       <FAQSection></FAQSection>
       <CallToAction></CallToAction>
-      <HelpPage></HelpPage>
+      {/* <HelpPage></HelpPage> */}
       <ContactPage></ContactPage>
     </div>
   );

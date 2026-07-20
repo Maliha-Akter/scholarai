@@ -51,10 +51,10 @@ export default function Footer() {
                 <Link href="/" className="hover:text-blue-400 transition-colors">Home</Link>
               </li>
               <li>
-                <Link href="/scholarships" className="hover:text-blue-400 transition-colors">Scholarships</Link>
+                <Link href="/scholarships/view" className="hover:text-blue-400 transition-colors">Scholarships</Link>
               </li>
               <li>
-                <Link href="/smart-recommendation" className="hover:text-blue-400 transition-colors">AI Advisor</Link>
+                <Link href="/ai-recommender" className="hover:text-blue-400 transition-colors">AI Advisor</Link>
               </li>
               <li>
                 <Link href="/dashboard" className="hover:text-blue-400 transition-colors">Dashboard</Link>
@@ -75,12 +75,12 @@ export default function Footer() {
               <li>
                 <Link href="/help" className="hover:text-blue-400 transition-colors">Help Center</Link>
               </li>
-              <li>
+              {/* <li>
                 <Link href="/privacy" className="hover:text-blue-400 transition-colors">Privacy Policy</Link>
               </li>
               <li>
                 <Link href="/terms" className="hover:text-blue-400 transition-colors">Terms & Conditions</Link>
-              </li>
+              </li> */}
             </ul>
           </div>
 

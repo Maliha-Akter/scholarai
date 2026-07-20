@@ -10,6 +10,45 @@ import Link from 'next/link';
 import { authClient } from '../lib/auth-client';
 
 // --- TYPES ---
+// --- TYPES ---
+interface Application {
+    _id: string;
+    title: string;
+    university: string;
+    status?: string;
+    appliedAt: string;
+}
+
+interface ScholarshipSummary {
+    _id: string;
+    title: string;
+    universityName: string;
+    country: string;
+    rating?: number;
+    views?: number;
+    reviewsCount?: number;
+}
+
+interface SavedScholarship {
+    _id: string;
+    title: string;
+    university: string;
+    country: string;
+    fundingType: string;
+}
+
+interface ReviewItem {
+    _id: string;
+    title: string;
+    rating: number;
+    reviewText: string;
+}
+
+interface UpcomingDeadline {
+    title: string;
+    deadline: string;
+}
+
 interface DashboardData {
     stats: {
         myScholarships: number;
@@ -23,11 +62,11 @@ interface DashboardData {
         totalReviews: number;
         popularityScore: number;
     };
-    recentApplications: any[];
-    myScholarships: any[];
-    savedScholarships: any[];
-    recentReviews: any[];
-    upcomingDeadlines: any[];
+    recentApplications: Application[];
+    myScholarships: ScholarshipSummary[];
+    savedScholarships: SavedScholarship[];
+    recentReviews: ReviewItem[];
+    upcomingDeadlines: UpcomingDeadline[];
 }
 
 export default function DashboardUI() {

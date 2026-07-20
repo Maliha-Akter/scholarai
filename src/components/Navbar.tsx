@@ -190,14 +190,14 @@ export default function Navbar() {
                                                 <UserIcon className="w-4 h-4 mr-2.5 text-slate-400" /> Profile
                                             </Link>
                                             <Link
-                                                href="/dashboard/saved"
+                                                href="/dashboard/scholarships/saved"
                                                 onClick={() => setIsProfileDropdownOpen(false)}
                                                 className="flex items-center px-4 py-2 text-sm text-slate-700 hover:bg-blue-50 hover:text-[#1D4ED8] font-medium transition-colors"
                                             >
                                                 <Bookmark className="w-4 h-4 mr-2.5 text-slate-400" /> Saved Scholarships
                                             </Link>
                                             <Link
-                                                href="/dashboard/history"
+                                                href="/dashboard/scholarships/application"
                                                 onClick={() => setIsProfileDropdownOpen(false)}
                                                 className="flex items-center px-4 py-2 text-sm text-slate-700 hover:bg-blue-50 hover:text-[#1D4ED8] font-medium transition-colors"
                                             >
@@ -211,11 +211,11 @@ export default function Navbar() {
                                                 <Sparkles className="w-4 h-4 mr-2.5 text-slate-400" /> AI Assistant
                                             </Link>
                                             <Link
-                                                href="/dashboard/documents"
+                                                href="/dashboard/scholarships/manage"
                                                 onClick={() => setIsProfileDropdownOpen(false)}
                                                 className="flex items-center px-4 py-2 text-sm text-slate-700 hover:bg-blue-50 hover:text-[#1D4ED8] font-medium transition-colors"
                                             >
-                                                <Files className="w-4 h-4 mr-2.5 text-slate-400" /> Document Center
+                                                <Files className="w-4 h-4 mr-2.5 text-slate-400" /> Manage Documents
                                             </Link>
                                         </div>
 

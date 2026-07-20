@@ -74,50 +74,50 @@ const servicesData: ServiceItem[] = [
 
 export default function OurServices() {
   return (
-    <section className="container mx-auto px-4 py-20">
+    <section className="container mx-auto px-4 py-12 md:py-20">
       
       {/* Section Header */}
-      <div className="text-center max-w-2xl mx-auto mb-16 space-y-3">
-        <span className="text-xs font-bold uppercase tracking-widest text-blue-600 bg-blue-50 px-3.5 py-1.5 rounded-full border border-blue-100">
+      <div className="text-center max-w-2xl mx-auto mb-10 md:mb-16 space-y-3">
+        <span className="inline-block text-xs font-bold uppercase tracking-widest text-blue-600 bg-blue-50 px-3.5 py-1.5 rounded-full border border-blue-100">
           Our Services
         </span>
-        <h2 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">
+        <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 tracking-tight">
           What We Offer
         </h2>
-        <p className="text-base text-slate-600 leading-relaxed">
+        <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
           Everything you need to discover, organize, and apply for scholarships with confidence.
         </p>
       </div>
 
-      {/* Modern Horizontal 2-Column Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
+      {/* Responsive Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 max-w-5xl mx-auto">
         {servicesData.map((service, idx) => {
           const IconComponent = service.icon;
           return (
             <div 
               key={idx}
-              className="group bg-white border border-slate-200/80 hover:border-blue-500/50 rounded-2xl p-6 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6"
+              className="group bg-white border border-slate-200/80 hover:border-blue-500/50 rounded-2xl p-5 sm:p-6 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 sm:gap-6"
             >
               {/* Left Side: Icon & Content */}
               <div className="flex items-start gap-4">
                 <div className={`p-3.5 rounded-xl ${service.iconBg} ${service.iconColor} transition-all duration-300 shrink-0 shadow-inner`}>
-                  <IconComponent className="w-6 h-6 stroke-[2]" />
+                  <IconComponent className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2]" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-slate-900 tracking-tight group-hover:text-blue-600 transition-colors mb-1">
+                  <h3 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight group-hover:text-blue-600 transition-colors mb-1">
                     {service.title}
                   </h3>
-                  <p className="text-sm text-slate-600 leading-relaxed font-normal">
+                  <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal">
                     {service.description}
                   </p>
                 </div>
               </div>
 
               {/* Right Side: Learn More Action Link */}
-              <div className="shrink-0 self-end sm:self-center w-full sm:w-auto pt-3 sm:pt-0 border-t sm:border-t-0 border-slate-100">
+              <div className="shrink-0 w-full sm:w-auto pt-3 sm:pt-0 border-t sm:border-t-0 border-slate-100 flex justify-center sm:block">
                 <Link
                   href={service.link}
-                  className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 group-hover:text-blue-600 transition-colors whitespace-nowrap bg-slate-50 group-hover:bg-blue-50 px-3.5 py-2 rounded-xl border border-slate-200/60 group-hover:border-blue-100"
+                  className="inline-flex items-center justify-center gap-1.5 text-xs font-bold text-slate-700 group-hover:text-blue-600 transition-colors whitespace-nowrap bg-slate-50 group-hover:bg-blue-50 w-full sm:w-auto px-4 py-2.5 sm:py-2 rounded-xl border border-slate-200/60 group-hover:border-blue-100"
                 >
                   <span>Learn More</span>
                   <ArrowRight size={13} className="transform group-hover:translate-x-1 transition-transform duration-300" />

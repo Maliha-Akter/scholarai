@@ -152,7 +152,7 @@ export default function UserProfilePage() {
                                     setIsEditing(true);
                                 }}
                                 size="sm"
-                                className="rounded-xl font-bold text-xs bg-[#1D4ED8] hover:bg-[#1D4ED8]/90 text-white shadow-md shadow-[#1D4ED8]/15 flex items-center gap-1.5 px-4 transition-all"
+                                className="rounded-xl p-3 font-bold text-xs bg-[#1D4ED8] hover:bg-[#1D4ED8]/90 text-white shadow-md shadow-[#1D4ED8]/15 flex items-center gap-1.5 px-4 transition-all"
                             >
                                 <Edit3 size={14} /> Edit Profile
                             </Button>
@@ -246,7 +246,7 @@ export default function UserProfilePage() {
                                         setIsEditing(false);
                                         setFormData({ name: user.name || "", image: user.image || "" });
                                     }}
-                                    className="rounded-xl font-semibold text-sm border border-slate-200 bg-white hover:bg-slate-50 text-[#0F172A]"
+                                    className="p-3 flex items-center gap-2 rounded-xl font-semibold text-sm border border-slate-200 bg-white hover:bg-slate-50 text-[#0F172A]"
                                 >
                                     <X size={15} /> Cancel
                                 </Button>
@@ -254,7 +254,7 @@ export default function UserProfilePage() {
                                 <Button
                                     type="submit"
                                     isDisabled={isSaving}
-                                    className={`flex items-center gap-2 rounded-xl font-bold text-sm bg-gradient-to-r from-[#1D4ED8] to-[#7C3AED] hover:opacity-95 text-white shadow-lg shadow-[#7C3AED]/25 px-6 transition-all ${
+                                    className={`p-3 flex items-center gap-2 rounded-xl font-bold text-sm bg-gradient-to-r from-[#1D4ED8] to-[#7C3AED] hover:opacity-95 text-white shadow-lg shadow-[#7C3AED]/25 px-6 transition-all ${
                                         isSaving ? 'opacity-70 cursor-not-allowed' : ''
                                     }`}
                                 >

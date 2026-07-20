@@ -295,7 +295,7 @@ export default function SavedScholarshipsPage() {
                   </div>
 
                   {/* Action Button */}
-                  <Link href={`/scholarships/view/${item.slug || item._id}`} className="w-full mt-1">
+                  <Link href={`/dashboard/scholarships/view/${item.slug || item._id}`} className="w-full mt-1">
                     <Button className="w-full font-bold text-xs bg-[#1D4ED8] hover:bg-[#1D4ED8]/90 text-white rounded-xl shadow-md shadow-[#1D4ED8]/15 flex items-center justify-center gap-1.5 py-5 transition-all">
                       <span>View Details</span>
                       <ExternalLink size={14} className="text-[#FBBF24]" />
